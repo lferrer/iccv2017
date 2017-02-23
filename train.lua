@@ -1,29 +1,15 @@
 require 'torch'
 require 'nn'
 require 'optim'
-mnist = require 'mnist'
+require 'cudnn'
 paths = require 'paths'
 
-fullset = mnist.traindataset()
-testset = mnist.testdataset()
+-- Create Model 
+local batch_size = 20
+local model = c3d(batch_size)
+model = model:cuda()
 
-trainset = {
-    size = 50000,
-    data = fullset.data[{{1,50000}}]:double(),
-    label = fullset.label[{{1,50000}}]
-}
-validationset = {
-    size = 10000,
-    data = fullset.data[{{50001,60000}}]:double(),
-    label = fullset.label[{{50001,60000}}]
-}
-
-model = nn.Sequential()
-model:add(nn.Reshape(28*28))
-model:add(nn.Linear(28*28, 30))
-model:add(nn.Tanh())
-model:add(nn.Linear(30, 10))
-model:add(nn.LogSoftMax())
+print(model.size)
 
 criterion = nn.ClassNLLCriterion()
 
