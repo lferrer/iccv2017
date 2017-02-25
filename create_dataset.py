@@ -133,9 +133,7 @@ def load_image_tuple(fp_filename, tp_filename):
         fp_image_data = np.dstack((fp_image, fp_image_data))
         tp_image_data = np.dstack((tp_image, tp_image_data))
 
-    image_data = np.concatenate((fp_image_data[..., np.newaxis],
-                                 tp_image_data[..., np.newaxis]),
-                                axis=3)
+    image_data = np.dstack((fp_image_data, tp_image_data))
     return image_data
 
 def add_to_db(txn, image_data, label, i):
