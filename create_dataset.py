@@ -1,5 +1,6 @@
 import string
 from os import path
+import math
 from random import randint
 
 import cv2
@@ -10,14 +11,19 @@ from skimage.measure import compare_ssim as ssim
 import caffe
 
 # Config section of the script
-POSITIVE_TRAIN_SAMPLES = 140000
-NEGATIVE_TRAIN_SAMPLES = 140000
-POSITIVE_VAL_SAMPLES = 20000
-NEGATIVE_VAL_SAMPLES = 20000
-POSITIVE_TEST_SAMPLES = 40000
-NEGATIVE_TEST_SAMPLES = 40000
-SAMPLE_PRINT_RATE = 100
+# These NEED to be float
+POSITIVE_TRAIN_SAMPLES = 14000.0
+NEGATIVE_TRAIN_SAMPLES = 14000.0
+POSITIVE_VAL_SAMPLES = 2000.0
+NEGATIVE_VAL_SAMPLES = 2000.0
+POSITIVE_TEST_SAMPLES = 4000.0
+NEGATIVE_TEST_SAMPLES = 4000.0
 INTER_VIDEO_RATE = 0.80
+
+# These NEED to be int
+SAMPLE_PRINT_RATE = 100.0
+SAMPLE_BATCH_RATE = 1000.0
+
 
 # 4292 frames / overlap of 8 frames = 536.5
 VIDEO_LENGTH = 536
@@ -174,40 +180,46 @@ def add_to_db(txn, image_data, label, i):
     # The encode is only essential in Python 3
     txn.put(str_id.encode('ascii'), datum.SerializeToString())
 
-def generate_samples(txn, n_samples, label, get_rnd_img_func):
-    for i in range(n_samples):
-        # Get a random image
-        fp_filename, tp_filename = get_rnd_img_func()
-        img_tuple = fp_filename + '-' + tp_filename
-        while img_tuple in hit_dict:
-            # Get an unused random image
-            fp_filename, tp_filename = get_rnd_img_func()
-            img_tuple = fp_filename + '-' + tp_filename
+def generate_samples(name, n_samples, label, get_rnd_img_func):
+    n_batches = int(math.ceil(n_samples / SAMPLE_BATCH_RATE))
+    index = 0
+    for batch in range(n_batches):
+        print "Creating batch {} out of {}".format(batch + 1, n_batches)
+        env = lmdb.open(name, map_size=MAP_SIZE)
+        with env.begin(write=True) as txn:
+            n_samples_left = int(min(SAMPLE_BATCH_RATE, n_samples - SAMPLE_BATCH_RATE*batch))
+            for i in range(n_samples_left):
+                # Get a random image
+                fp_filename, tp_filename = get_rnd_img_func()
+                img_tuple = fp_filename + '-' + tp_filename
+                while img_tuple in hit_dict:
+                    # Get an unused random image
+                    fp_filename, tp_filename = get_rnd_img_func()
+                    img_tuple = fp_filename + '-' + tp_filename
 
-        # Add the random image to the used list
-        hit_dict[img_tuple] = True
+                # Add the random image to the used list
+                hit_dict[img_tuple] = True
 
-        # Get the images from the disk
-        image_data = load_image_tuple(fp_filename, tp_filename)
+                # Get the images from the disk
+                image_data = load_image_tuple(fp_filename, tp_filename)
 
-        # Add to the lmdb
-        add_to_db(txn, image_data, label, i)
+                # Add to the lmdb
+                add_to_db(txn, image_data, label, i)
 
-        if (i + 1) % SAMPLE_PRINT_RATE == 0:
-            print "Generated {} out of {} samples".format(i + 1, n_samples)
+                if (i + 1) % SAMPLE_PRINT_RATE == 0:
+                    print "Generated {} out of {} samples".format(index + i + 1, int(n_samples))
+        index = index + n_samples_left
 
-def create_db(name, n_pos_samples, n_neg_samples):
-    env = lmdb.open(name, map_size=MAP_SIZE)
-    with env.begin(write=True) as txn:
-        # Generate positive samples
-        generate_samples(txn, n_pos_samples, POSITIVE_LABEL, get_rnd_pos_img)
+def create_db(name, n_pos_samples, n_neg_samples):    
+    # Generate positive samples
+    generate_samples(name, n_pos_samples, POSITIVE_LABEL, get_rnd_pos_img)
 
-        # Generate negative samples
-        inter_video_samples = int(n_neg_samples * INTER_VIDEO_RATE)
-        intra_video_samples = n_neg_samples - inter_video_samples
+    # Generate negative samples
+    inter_video_samples = math.ceil(n_neg_samples * INTER_VIDEO_RATE)
+    intra_video_samples = n_neg_samples - inter_video_samples
 
-        generate_samples(txn, inter_video_samples, NEGATIVE_LABEL, get_rnd_neg_inter_img)
-        generate_samples(txn, intra_video_samples, NEGATIVE_LABEL, get_rnd_neg_intra_img)
+    generate_samples(name, inter_video_samples, NEGATIVE_LABEL, get_rnd_neg_inter_img)
+    generate_samples(name, intra_video_samples, NEGATIVE_LABEL, get_rnd_neg_intra_img)
 
 # Create DBs
 print 'Generating training database...'
