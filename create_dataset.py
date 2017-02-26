@@ -10,12 +10,12 @@ from skimage.measure import compare_ssim as ssim
 import caffe
 
 # Config section of the script
-POSITIVE_TRAIN_SAMPLES = 7#140000
-NEGATIVE_TRAIN_SAMPLES = 7#140000
-POSITIVE_VAL_SAMPLES = 1#20000
-NEGATIVE_VAL_SAMPLES = 1#20000
-POSITIVE_TEST_SAMPLES = 2#40000
-NEGATIVE_TEST_SAMPLES = 2#40000
+POSITIVE_TRAIN_SAMPLES = 140000
+NEGATIVE_TRAIN_SAMPLES = 140000
+POSITIVE_VAL_SAMPLES = 20000
+NEGATIVE_VAL_SAMPLES = 20000
+POSITIVE_TEST_SAMPLES = 40000
+NEGATIVE_TEST_SAMPLES = 40000
 INTER_VIDEO_RATE = 0.80
 
 # 4292 frames / overlap of 8 frames = 536.5
@@ -33,6 +33,14 @@ INTRA_VIDEO_SSIM_THRESHOLD = 0.5
 # Video frames were to 128 by 171 (According to original paper)
 FRAME_WIDTH = 128
 FRAME_HEIGHT = 171
+
+#According to the LMDB website: On 64-bit there is no penalty for making this huge (say 1TB)
+MAP_SIZE = 1e12
+
+# Variables
+hit_dict = {}
+image_count = 0
+image_mean = np.zeros((1, 3))
 
 # Helper functions
 # Returns the filename of a given image based on the dataset structure
@@ -101,6 +109,13 @@ def get_base_filename(filename):
     base_filename = filename[:-image_file_length]
     return base_filename, index
 
+def add_to_mean(image):
+    global image_mean, image_count
+    mean = np.mean(np.mean(image, axis=0), axis=0)
+    image_mean = image_mean * image_count + mean
+    image_count = image_count + 1
+    image_mean = image_mean / image_count
+
 
 def load_image_tuple(fp_filename, tp_filename):
     # Retrieve the index number
@@ -115,6 +130,10 @@ def load_image_tuple(fp_filename, tp_filename):
     fp_image_data = cv2.resize(fp_image, (FRAME_WIDTH, FRAME_HEIGHT), cv2.INTER_AREA)
     tp_image_data = cv2.resize(tp_image, (FRAME_WIDTH, FRAME_HEIGHT), cv2.INTER_AREA)
 
+    # Add up to the mean calculation
+    add_to_mean(fp_image_data)
+    add_to_mean(tp_image_data)
+
     # Load an stack the rest on them
     for i in range(1, CLIP_LENGTH):
         #Update the filenames
@@ -128,6 +147,10 @@ def load_image_tuple(fp_filename, tp_filename):
         # INTER_AREA is the best for image decimation (According to OpenCV documentation)
         fp_image = cv2.resize(fp_image, (FRAME_WIDTH, FRAME_HEIGHT), cv2.INTER_AREA)
         tp_image = cv2.resize(tp_image, (FRAME_WIDTH, FRAME_HEIGHT), cv2.INTER_AREA)
+
+        # Add up to the mean calculation
+        add_to_mean(fp_image)
+        add_to_mean(tp_image)
 
         # Stack the images for datum insertion
         fp_image_data = np.dstack((fp_image, fp_image_data))
@@ -182,12 +205,6 @@ def create_db(name, n_pos_samples, n_neg_samples):
         generate_samples(txn, inter_video_samples, NEGATIVE_LABEL, get_rnd_neg_inter_img)
         generate_samples(txn, intra_video_samples, NEGATIVE_LABEL, get_rnd_neg_intra_img)
 
-# Prepare the DBs
-hit_dict = {}
-
-#According to the LMDB website: On 64-bit there is no penalty for making this huge (say 1TB)
-MAP_SIZE = 1e12
-
 # Create DBs
 print 'Generating training database...'
 create_db('train', POSITIVE_TRAIN_SAMPLES, NEGATIVE_TRAIN_SAMPLES)
@@ -195,5 +212,5 @@ print 'Generating validation database...'
 create_db('val', POSITIVE_VAL_SAMPLES, NEGATIVE_VAL_SAMPLES)
 print 'Generating testing database...'
 create_db('test', POSITIVE_TEST_SAMPLES, NEGATIVE_TEST_SAMPLES)
-
+print 'Image mean: ' + str(image_mean)
 exit()

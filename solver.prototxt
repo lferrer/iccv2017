@@ -18,7 +18,7 @@ gamma: 0.1
 # 6th spoch
 stepsize: 1090
 # Display every 20 iterations
-display: 50
+display: 1
 # The maximum number of iterations: 5 epochs
 max_iter: 5450
 # snapshot intermediate results
