@@ -16,6 +16,7 @@ POSITIVE_VAL_SAMPLES = 20000
 NEGATIVE_VAL_SAMPLES = 20000
 POSITIVE_TEST_SAMPLES = 40000
 NEGATIVE_TEST_SAMPLES = 40000
+SAMPLE_PRINT_RATE = 100
 INTER_VIDEO_RATE = 0.80
 
 # 4292 frames / overlap of 8 frames = 536.5
@@ -191,6 +192,9 @@ def generate_samples(txn, n_samples, label, get_rnd_img_func):
 
         # Add to the lmdb
         add_to_db(txn, image_data, label, i)
+
+        if (i + 1) % SAMPLE_PRINT_RATE == 0:
+            print "Generated {} out of {} samples".format(i + 1, n_samples)
 
 def create_db(name, n_pos_samples, n_neg_samples):
     env = lmdb.open(name, map_size=MAP_SIZE)
