@@ -180,7 +180,7 @@ def add_to_db(txn, image_data, label, i):
     # The encode is only essential in Python 3
     txn.put(str_id.encode('ascii'), datum.SerializeToString())
 
-def generate_samples(name, n_samples, label, get_rnd_img_func):
+def generate_samples(name, n_samples, index_list, index_start, label, get_rnd_img_func):
     n_batches = int(math.ceil(n_samples / SAMPLE_BATCH_RATE))
     index = 0
     for batch in range(n_batches):
@@ -204,22 +204,41 @@ def generate_samples(name, n_samples, label, get_rnd_img_func):
                 image_data = load_image_tuple(fp_filename, tp_filename)
 
                 # Add to the lmdb
-                add_to_db(txn, image_data, label, i)
+                db_index = int(index_list[index_start + index + i])
+                add_to_db(txn, image_data, label, db_index)
 
                 if (i + 1) % SAMPLE_PRINT_RATE == 0:
                     print "Generated {} out of {} samples".format(index + i + 1, int(n_samples))
         index = index + n_samples_left
 
-def create_db(name, n_pos_samples, n_neg_samples):    
+def create_index_list(n_samples):
+    index_list = np.zeros(n_samples)
+
+    for i in range(n_samples):
+        pos = randint(0, n_samples - 1)
+        while index_list[pos] != 0:
+            pos = randint(0, n_samples - 1)
+        index_list[pos] = i
+
+    return index_list
+
+
+
+def create_db(name, n_pos_samples, n_neg_samples):
+    # Create a random index list to shuffle the data
+    index_list = create_index_list(int(n_neg_samples + n_pos_samples))    
+
     # Generate positive samples
-    generate_samples(name, n_pos_samples, POSITIVE_LABEL, get_rnd_pos_img)
+    generate_samples(name, n_pos_samples, index_list, 0, POSITIVE_LABEL, get_rnd_pos_img)
 
     # Generate negative samples
     inter_video_samples = math.ceil(n_neg_samples * INTER_VIDEO_RATE)
     intra_video_samples = n_neg_samples - inter_video_samples
 
-    generate_samples(name, inter_video_samples, NEGATIVE_LABEL, get_rnd_neg_inter_img)
-    generate_samples(name, intra_video_samples, NEGATIVE_LABEL, get_rnd_neg_intra_img)
+    generate_samples(name, inter_video_samples, index_list, int(n_pos_samples),
+                     NEGATIVE_LABEL, get_rnd_neg_inter_img)
+    generate_samples(name, intra_video_samples, index_list, int(n_pos_samples+inter_video_samples),
+                     NEGATIVE_LABEL, get_rnd_neg_intra_img)
 
 # Create DBs
 print 'Generating training database...'

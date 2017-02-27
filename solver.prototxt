@@ -1,27 +1,28 @@
 net: "train_test.prototxt"
-# num test samples / batch_size = 41822/10 = 4182, but only 100 iterations
+# num val samples / batch_size = 2000/7 = 285, but only 30 iterations
 # are used for testing to speed up training
 # optionally run test on train set, to monitor overfitting
 #test_iter: 100
 #test_state: { stage: 'test-on-train' }
-test_iter: 100
+test_iter: 30
+# test every 0.5 epochs. 28000 samples / 7 (batch_size) = 4000 iterations per epoch
 test_state: { stage: 'test-on-val' }
-test_interval: 545
-base_lr: 0.0022
+test_interval: 2000
+base_lr: 0.0005
 momentum: 0.9
 weight_decay: 0.005
 lr_policy: "step"
-gamma: 0.1
+gamma: 0.5
 # original paper uses gamma of 0.1 every 4 epochs
 # using batch_size=30, stepsize = 4*(107258/30) to match original results
 # https://arxiv.org/pdf/1412.0767.pdf: figure 2 -- ~45% clip accuracy around
-# 6th spoch
-stepsize: 1090
-# Display every 20 iterations
-display: 1
+# 6th epoch. We'll start with a gamma of 0.5 every epoch
+stepsize: 2000
+# Display every 200 iterations
+display: 200
 # The maximum number of iterations: 5 epochs
-max_iter: 5450
-# snapshot intermediate results
-snapshot: 545
+max_iter: 20000
+# snapshot intermediate results every 0.5 epochs
+snapshot: 2000
 snapshot_prefix: "mini_test"
 solver_mode: GPU
