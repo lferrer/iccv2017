@@ -76,9 +76,7 @@ def get_rnd_neg_intra_img(first_person, scenario, ref_index):
     if index >= VIDEO_LENGTH - CLIP_LENGTH:
         index = index - VIDEO_LENGTH - CLIP_LENGTH
     if index < 0:
-        index = VIDEO_LENGTH - CLIP_LENGTH - index
-    index = max(index, 1)
-    
+        index = VIDEO_LENGTH - CLIP_LENGTH - index - 1
     if first_person:
         neg_filename = build_filename(True, scenario, index)
     else:
