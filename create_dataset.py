@@ -10,6 +10,9 @@ import numpy as np
 import caffe
 
 # Config section of the script
+TRAINING_RATE = 0.7
+VALIDATION_RATE = 0.1
+TESTING_RATE = 0.2
 INTER_VIDEO_RATE = 0.080
 SAMPLE_PRINT_RATE = 100.0
 SAMPLE_BATCH_RATE = 1000.0
@@ -72,6 +75,8 @@ def get_rnd_neg_intra_img(first_person, scenario, ref_index):
    
     if index >= VIDEO_LENGTH - CLIP_LENGTH:
         index = index - VIDEO_LENGTH - CLIP_LENGTH
+    if index < 0:
+        index = VIDEO_LENGTH - CLIP_LENGTH - index
     index = max(index, 1)
     
     if first_person:
@@ -196,55 +201,75 @@ def create_index_list(n_samples):
 
     return index_list
 
+def generate_database(db_name, n_samples, index_start):
+    n_batches = int(math.ceil(n_samples / SAMPLE_BATCH_RATE))
+    index = 0
+    fp_anchor = True
+    for batch in range(n_batches):
+        print "Creating batch {} out of {}".format(batch + 1, n_batches)
+        env = lmdb.open(db_name, map_size=MAP_SIZE)
+        with env.begin(write=True) as txn:
+            n_samples_left = int(min(SAMPLE_BATCH_RATE, n_samples - SAMPLE_BATCH_RATE*batch))
+            for i in range(n_samples_left):
+
+                # Get a random triplet
+                anchor_filename, positive_filename, negative_filename = get_random_triplet(fp_anchor)
+                img_triplet = "{}-{}-{}".format(anchor_filename, positive_filename, negative_filename)
+
+                while img_triplet in hit_dict:
+                    # Get an unused random triplet
+                    anchor_filename, positive_filename, negative_filename = get_random_triplet(fp_anchor)
+                    img_triplet = "{}-{}-{}".format(anchor_filename, positive_filename, negative_filename)
+
+                # Add the random image to the used list
+                hit_dict[img_triplet] = True
+
+                # Get the images from the disk
+                image_data = load_image_triplet(anchor_filename, positive_filename, negative_filename)
+
+                # Add to the lmdb
+                db_index = int(index_list[index + index_start + i])
+                add_to_db(txn, image_data, db_index)
+
+                # Invert the anchor to generate another type of sample
+                fp_anchor = not fp_anchor
+
+                if (i + 1) % SAMPLE_PRINT_RATE == 0:
+                    print "Generated {} out of {} samples".format(index + i + 1, int(n_samples))
+        index = index + n_samples_left
+
 # Create DBs
 if len(sys.argv) < 2:
-    print "Error: Not enough parameters given. Parameters needed: -name_of_db -n_samples"
+    print "Error: Not enough parameters given. Parameters needed: -db_path -n_samples"
     exit()
 else:
-    db_name = sys.argv[1]
+    db_path = sys.argv[1]
     n_samples = int(sys.argv[2])
 
-print 'Generating {} database with {} samples'.format(db_name, n_samples)
+print 'Generating database here: {} with {} samples'.format(db_path, n_samples)
 
 # Create a random index list to shuffle the data
 index_list = create_index_list(n_samples)
 
 # Generate samples
-n_batches = int(math.ceil(n_samples / SAMPLE_BATCH_RATE))
-index = 0
-fp_anchor = True
-for batch in range(n_batches):
-    print "Creating batch {} out of {}".format(batch + 1, n_batches)
-    env = lmdb.open(db_name, map_size=MAP_SIZE)
-    with env.begin(write=True) as txn:
-        n_samples_left = int(min(SAMPLE_BATCH_RATE, n_samples - SAMPLE_BATCH_RATE*batch))
-        for i in range(n_samples_left):
+train_samples = int(n_samples * TRAINING_RATE)
+train_name = db_path + "/train"
+print 'Generating train database with {} samples'.format(train_samples)
+generate_database(train_name, train_samples, 0)
 
-            # Get a random triplet
-            anchor_filename, positive_filename, negative_filename = get_random_triplet(fp_anchor)
-            img_triplet = "{}-{}-{}".format(anchor_filename, positive_filename, negative_filename)
+val_samples = int(n_samples * VALIDATION_RATE)
+val_name = db_path + "/val"
+print 'Generating val database with {} samples'.format(val_samples)
+generate_database(val_name, val_samples, train_samples)
 
-            while img_triplet in hit_dict:
-                # Get an unused random triplet
-                anchor_filename, positive_filename, negative_filename = get_random_triplet(fp_anchor)
-                img_triplet = "{}-{}-{}".format(anchor_filename, positive_filename, negative_filename)
+test_samples = int(n_samples * TESTING_RATE)
+test_name = db_path + "/test"
+print 'Generating test database with {} samples'.format(test_samples)
+generate_database(test_name, test_samples, train_samples + val_samples)
 
-            # Add the random image to the used list
-            hit_dict[img_triplet] = True
+f = open(db_path + "/image_mean.txt","w+")
+f.write(str(image_mean))
+f.close()
 
-            # Get the images from the disk
-            image_data = load_image_triplet(anchor_filename, positive_filename, negative_filename)
-
-            # Add to the lmdb
-            db_index = int(index_list[index + i])
-            add_to_db(txn, image_data, db_index)
-
-            # Invert the anchor to generate another type of sample
-            fp_anchor = not fp_anchor
-
-            if (i + 1) % SAMPLE_PRINT_RATE == 0:
-                print "Generated {} out of {} samples".format(index + i + 1, int(n_samples))
-    index = index + n_samples_left
-
-print 'Generation complete'
+print 'Generation complete. Image mean: ' + str(image_mean)
 exit()
