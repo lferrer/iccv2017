@@ -42,10 +42,13 @@ image_mean = np.zeros((1, 3))
 # Helper functions
 # Returns the filename of a given image based on the dataset structure
 def build_filename(first_person, scenario, index, elevation=330, rotation=0):
-    image_name = str(index) + '.jpg'
     if first_person:
+        # First-Person goes from 1 - 4192
+        image_name = str(index + 1) + '.jpg'
         filename = path.join(DS_ROOT, 'First Person', scenario, image_name)
     else:
+        # Third person goes from 0 to 4191
+        image_name = str(index) + '.jpg'
         angle_folder = str(elevation) + '-' + str(rotation)
         filename = path.join(DS_ROOT, 'Third Person', scenario, angle_folder, image_name)
     return filename
@@ -72,11 +75,8 @@ def get_rnd_neg_inter_img(first_person, ref_scenario):
 def get_rnd_neg_intra_img(first_person, scenario, ref_index):
     delta = randint(VIDEO_LENGTH / 2, VIDEO_LENGTH - CLIP_LENGTH - 1)
     index = ref_index + delta
-   
     if index >= VIDEO_LENGTH - CLIP_LENGTH:
-        index = index - VIDEO_LENGTH - CLIP_LENGTH
-    if index < 0:
-        index = VIDEO_LENGTH - CLIP_LENGTH - index - 1
+        index = index - (VIDEO_LENGTH - CLIP_LENGTH)
     if first_person:
         neg_filename = build_filename(True, scenario, index)
     else:
