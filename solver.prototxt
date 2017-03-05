@@ -10,7 +10,7 @@ test_state: { stage: 'test-on-val' }
 test_interval: 2000
 base_lr: 0.0005
 momentum: 0.9
-weight_decay: 0.005
+weight_decay: 0.00005
 lr_policy: "step"
 gamma: 0.5
 # original paper uses gamma of 0.1 every 4 epochs
