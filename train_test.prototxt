@@ -3,7 +3,6 @@ layer {
   name: "data"
   type: "Data"
   top: "triplet"
-  top: "label"
   include {
     phase: TRAIN
   }
@@ -158,14 +157,13 @@ layer {
   data_param {
     source: "/data/leo-data/Synthetic/LMDB_MINI/train"
     backend: LMDB
-    batch_size: 15
+    batch_size: 5
   }
 }
 layer {
   name: "data"
   type: "Data"
   top: "triplet"
-  top: "label"
   include {
     phase: TEST
     stage: "test-on-val"
@@ -1815,30 +1813,14 @@ layer {
   }
 }
 
-layer {
-  name: "positive-distance"
-  type: "EuclideanLoss"
-  bottom: "fc7"
-  bottom: "fc7-pos"
-  top: "positive-distance"
-}
-layer {
-  name: "negative-distance"
-  type: "EuclideanLoss"
-  bottom: "fc7"
-  bottom: "fc7-neg"
-  top: "negative-distance"
-}
-
 layer{
   name: "loss"
-  type: "Eltwise"
-  bottom: "positive-distance"
-  bottom: "negative-distance"
+  type: "TripletLoss"
+  bottom: "fc7"
+  bottom: "fc7-pos"
+  bottom: "fc7-neg"
   top: "loss"
-  eltwise_param{
-    operation: SUM
-    coeff: 1
-    coeff: -1
+  threshold_param {
+     threshold: 1
   }
 }

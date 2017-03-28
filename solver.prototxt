@@ -1,4 +1,6 @@
 net: "train_test.prototxt"
+# Accumulate batches of 5 images over 5 iterations to get batches of 25 images
+iter_size: 5
 # num val samples / batch_size = 2000/7 = 285, but only 30 iterations
 # are used for testing to speed up training
 # optionally run test on train set, to monitor overfitting
@@ -7,8 +9,8 @@ net: "train_test.prototxt"
 test_iter: 30
 # test every 0.5 epochs. 28000 samples / 7 (batch_size) = 4000 iterations per epoch
 test_state: { stage: 'test-on-val' }
-test_interval: 2000
-base_lr: 0.0005
+test_interval: 1
+base_lr: 0.000005
 momentum: 0.9
 weight_decay: 0.00005
 lr_policy: "step"
@@ -19,7 +21,7 @@ gamma: 0.5
 # 6th epoch. We'll start with a gamma of 0.5 every epoch
 stepsize: 2000
 # Display every 200 iterations
-display: 200
+display: 5
 # The maximum number of iterations: 5 epochs
 max_iter: 20000
 # snapshot intermediate results every 0.5 epochs
