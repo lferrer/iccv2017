@@ -1,7 +1,7 @@
 train_net: "mini_train_test.prototxt"
-base_lr: 0.0001
+base_lr: 0.001
 momentum: 0.9
-weight_decay: 0.0005
+weight_decay: 0.00005
 lr_policy: "step"
 gamma: 0.1
 stepsize: 5000
@@ -11,6 +11,6 @@ display: 20
 max_iter: 20000
 # snapshot intermediate results
 snapshot: 5000
-snapshot_prefix: "c3d_ucf101_finetune_whole"
+snapshot_prefix: "c3d_resnet18_ucf101_r2_ft"
 # solver mode: CPU or GPU
 solver_mode: CPU
