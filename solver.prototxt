@@ -1,4 +1,4 @@
-net: "mini_train_test.prototxt"
+net: "train_test.prototxt"
 # num test samples / batch_size = 41822/10 = 4182, but only 100 iterations
 # are used for testing to speed up training
 # optionally run test on train set, to monitor overfitting
@@ -6,7 +6,7 @@ net: "mini_train_test.prototxt"
 #test_state: { stage: 'test-on-train' }
 test_iter: 100
 test_state: { stage: 'test-on-val' }
-test_interval: 1000
+test_interval: 100
 base_lr: 0.003
 momentum: 0.9
 weight_decay: 0.005
