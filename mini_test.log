@@ -1,25 +1,28 @@
-I0403 22:07:02.363817 21697 caffe.cpp:211] Use CPU.
-I0403 22:07:02.364038 21697 solver.cpp:44] Initializing solver from parameters: 
-train_net: "mini_train_test.prototxt"
-base_lr: 0.001
+I0404 09:46:45.643782 28191 caffe.cpp:210] Use CPU.
+I0404 09:46:45.644001 28191 solver.cpp:48] Initializing solver from parameters: 
+test_iter: 100
+test_interval: 1000
+base_lr: 0.003
 display: 20
-max_iter: 20000
+max_iter: 143010
 lr_policy: "step"
 gamma: 0.1
 momentum: 0.9
-weight_decay: 5e-05
-stepsize: 5000
+weight_decay: 0.005
+stepsize: 14301
 snapshot: 5000
-snapshot_prefix: "c3d_resnet18_ucf101_r2_ft"
+snapshot_prefix: "c3d_ucf101"
 solver_mode: CPU
+net: "mini_train_test.prototxt"
 train_state {
   level: 0
   stage: ""
 }
-I0403 22:07:02.364109 21697 solver.cpp:77] Creating training net from train_net file: mini_train_test.prototxt
-I0403 22:07:02.364748 21697 upgrade_proto.cpp:77] Attempting to upgrade batch norm layers using deprecated params: mini_train_test.prototxt
-I0403 22:07:02.364758 21697 upgrade_proto.cpp:80] Successfully upgraded batch norm layers using deprecated params.
-I0403 22:07:02.365427 21697 net.cpp:51] Initializing net from parameters: 
+test_state {
+  stage: "test-on-val"
+}
+I0404 09:46:45.644114 28191 solver.cpp:91] Creating training net from net file: mini_train_test.prototxt
+I0404 09:46:45.644754 28191 net.cpp:58] Initializing net from parameters: 
 name: "C3D-Mini"
 state {
   phase: TRAIN
@@ -246,1483 +249,415 @@ layer {
   }
 }
 layer {
-  name: "conv1"
-  type: "Convolution3D"
+  name: "conv1a"
+  type: "NdConvolution"
   bottom: "anchor"
-  top: "conv1"
+  top: "conv1a"
   param {
     lr_mult: 1
     decay_mult: 1
   }
-  convolution3d_param {
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
     num_output: 64
-    bias_term: false
-    pad: 3
-    kernel_size: 7
-    kernel_depth: 3
-    stride: 2
-    temporal_stride: 1
     weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+      type: "gaussian"
+      std: 0.01
     }
-    temporal_pad: 1
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+    pad_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
+    kernel_shape {
+      dim: 3
+      dim: 3
+      dim: 3
+    }
+    stride_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
   }
 }
 layer {
-  name: "bn_conv1"
-  type: "BatchNorm"
-  bottom: "conv1"
-  top: "conv1"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale_conv1"
-  type: "Scale"
-  bottom: "conv1"
-  top: "conv1"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "conv1_relu"
+  name: "relu1a"
   type: "ReLU"
-  bottom: "conv1"
-  top: "conv1"
+  bottom: "conv1a"
+  top: "conv1a"
 }
 layer {
-  name: "res2a_branch1"
-  type: "Convolution3D"
-  bottom: "conv1"
-  top: "res2a_branch1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 64
-    bias_term: false
-    pad: 0
-    kernel_size: 1
-    kernel_depth: 1
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+  name: "pool1"
+  type: "NdPooling"
+  bottom: "conv1a"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_shape {
+      dim: 1
+      dim: 2
+      dim: 2
     }
-    temporal_pad: 0
-  }
-}
-layer {
-  name: "bn2a_branch1"
-  type: "BatchNorm"
-  bottom: "res2a_branch1"
-  top: "res2a_branch1"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale2a_branch1"
-  type: "Scale"
-  bottom: "res2a_branch1"
-  top: "res2a_branch1"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res2a_branch2a"
-  type: "Convolution3D"
-  bottom: "conv1"
-  top: "res2a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 64
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+    stride_shape {
+      dim: 1
+      dim: 2
+      dim: 2
     }
-    temporal_pad: 1
   }
 }
 layer {
-  name: "bn2a_branch2a"
-  type: "BatchNorm"
-  bottom: "res2a_branch2a"
-  top: "res2a_branch2a"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale2a_branch2a"
-  type: "Scale"
-  bottom: "res2a_branch2a"
-  top: "res2a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res2a_branch2a_relu"
-  type: "ReLU"
-  bottom: "res2a_branch2a"
-  top: "res2a_branch2a"
-}
-layer {
-  name: "res2a_branch2b"
-  type: "Convolution3D"
-  bottom: "res2a_branch2a"
-  top: "res2a_branch2b"
+  name: "conv2a"
+  type: "NdConvolution"
+  bottom: "pool1"
+  top: "conv2a"
   param {
     lr_mult: 1
     decay_mult: 1
   }
-  convolution3d_param {
-    num_output: 64
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn2a_branch2b"
-  type: "BatchNorm"
-  bottom: "res2a_branch2b"
-  top: "res2a_branch2b"
   param {
-    lr_mult: 0
+    lr_mult: 2
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale2a_branch2b"
-  type: "Scale"
-  bottom: "res2a_branch2b"
-  top: "res2a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res2a"
-  type: "Eltwise"
-  bottom: "res2a_branch1"
-  bottom: "res2a_branch2b"
-  top: "res2a"
-}
-layer {
-  name: "res2a_relu"
-  type: "ReLU"
-  bottom: "res2a"
-  top: "res2a"
-}
-layer {
-  name: "res2b_branch2a"
-  type: "Convolution3D"
-  bottom: "res2a"
-  top: "res2b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 64
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn2b_branch2a"
-  type: "BatchNorm"
-  bottom: "res2b_branch2a"
-  top: "res2b_branch2a"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale2b_branch2a"
-  type: "Scale"
-  bottom: "res2b_branch2a"
-  top: "res2b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res2b_branch2a_relu"
-  type: "ReLU"
-  bottom: "res2b_branch2a"
-  top: "res2b_branch2a"
-}
-layer {
-  name: "res2b_branch2b"
-  type: "Convolution3D"
-  bottom: "res2b_branch2a"
-  top: "res2b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 64
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn2b_branch2b"
-  type: "BatchNorm"
-  bottom: "res2b_branch2b"
-  top: "res2b_branch2b"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale2b_branch2b"
-  type: "Scale"
-  bottom: "res2b_branch2b"
-  top: "res2b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res2b"
-  type: "Eltwise"
-  bottom: "res2a"
-  bottom: "res2b_branch2b"
-  top: "res2b"
-}
-layer {
-  name: "res2b_relu"
-  type: "ReLU"
-  bottom: "res2b"
-  top: "res2b"
-}
-layer {
-  name: "res3a_branch1"
-  type: "Convolution3D"
-  bottom: "res2b"
-  top: "res3a_branch1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
+  convolution_param {
     num_output: 128
-    bias_term: false
-    pad: 0
-    kernel_size: 1
-    kernel_depth: 1
-    stride: 2
-    temporal_stride: 2
     weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+      type: "gaussian"
+      std: 0.01
     }
-    temporal_pad: 0
-  }
-}
-layer {
-  name: "bn3a_branch1"
-  type: "BatchNorm"
-  bottom: "res3a_branch1"
-  top: "res3a_branch1"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale3a_branch1"
-  type: "Scale"
-  bottom: "res3a_branch1"
-  top: "res3a_branch1"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res3a_branch2a"
-  type: "Convolution3D"
-  bottom: "res2b"
-  top: "res3a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 128
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 2
-    temporal_stride: 2
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+    bias_filler {
+      type: "constant"
+      value: 1
     }
-    temporal_pad: 1
+    pad_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
+    kernel_shape {
+      dim: 3
+      dim: 3
+      dim: 3
+    }
+    stride_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
   }
 }
 layer {
-  name: "bn3a_branch2a"
-  type: "BatchNorm"
-  bottom: "res3a_branch2a"
-  top: "res3a_branch2a"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale3a_branch2a"
-  type: "Scale"
-  bottom: "res3a_branch2a"
-  top: "res3a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res3a_branch2a_relu"
+  name: "relu2a"
   type: "ReLU"
-  bottom: "res3a_branch2a"
-  top: "res3a_branch2a"
+  bottom: "conv2a"
+  top: "conv2a"
 }
 layer {
-  name: "res3a_branch2b"
-  type: "Convolution3D"
-  bottom: "res3a_branch2a"
-  top: "res3a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 128
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+  name: "pool2"
+  type: "NdPooling"
+  bottom: "conv2a"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_shape {
+      dim: 2
+      dim: 2
+      dim: 2
     }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn3a_branch2b"
-  type: "BatchNorm"
-  bottom: "res3a_branch2b"
-  top: "res3a_branch2b"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale3a_branch2b"
-  type: "Scale"
-  bottom: "res3a_branch2b"
-  top: "res3a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res3a"
-  type: "Eltwise"
-  bottom: "res3a_branch1"
-  bottom: "res3a_branch2b"
-  top: "res3a"
-}
-layer {
-  name: "res3a_relu"
-  type: "ReLU"
-  bottom: "res3a"
-  top: "res3a"
-}
-layer {
-  name: "res3b_branch2a"
-  type: "Convolution3D"
-  bottom: "res3a"
-  top: "res3b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 128
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+    stride_shape {
+      dim: 2
+      dim: 2
+      dim: 2
     }
-    temporal_pad: 1
   }
 }
 layer {
-  name: "bn3b_branch2a"
-  type: "BatchNorm"
-  bottom: "res3b_branch2a"
-  top: "res3b_branch2a"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale3b_branch2a"
-  type: "Scale"
-  bottom: "res3b_branch2a"
-  top: "res3b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res3b_branch2a_relu"
-  type: "ReLU"
-  bottom: "res3b_branch2a"
-  top: "res3b_branch2a"
-}
-layer {
-  name: "res3b_branch2b"
-  type: "Convolution3D"
-  bottom: "res3b_branch2a"
-  top: "res3b_branch2b"
+  name: "conv3a"
+  type: "NdConvolution"
+  bottom: "pool2"
+  top: "conv3a"
   param {
     lr_mult: 1
     decay_mult: 1
   }
-  convolution3d_param {
-    num_output: 128
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn3b_branch2b"
-  type: "BatchNorm"
-  bottom: "res3b_branch2b"
-  top: "res3b_branch2b"
   param {
-    lr_mult: 0
+    lr_mult: 2
     decay_mult: 0
   }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale3b_branch2b"
-  type: "Scale"
-  bottom: "res3b_branch2b"
-  top: "res3b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res3b"
-  type: "Eltwise"
-  bottom: "res3a"
-  bottom: "res3b_branch2b"
-  top: "res3b"
-}
-layer {
-  name: "res3b_relu"
-  type: "ReLU"
-  bottom: "res3b"
-  top: "res3b"
-}
-layer {
-  name: "res4a_branch1"
-  type: "Convolution3D"
-  bottom: "res3b"
-  top: "res4a_branch1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
+  convolution_param {
     num_output: 256
-    bias_term: false
-    pad: 0
-    kernel_size: 1
-    kernel_depth: 1
-    stride: 2
-    temporal_stride: 2
     weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+      type: "gaussian"
+      std: 0.01
     }
-    temporal_pad: 0
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+    pad_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
+    kernel_shape {
+      dim: 3
+      dim: 3
+      dim: 3
+    }
+    stride_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
   }
 }
 layer {
-  name: "bn4a_branch1"
-  type: "BatchNorm"
-  bottom: "res4a_branch1"
-  top: "res4a_branch1"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
+  name: "relu3a"
+  type: "ReLU"
+  bottom: "conv3a"
+  top: "conv3a"
+}
+layer {
+  name: "pool3"
+  type: "NdPooling"
+  bottom: "conv3a"
+  top: "pool3"
+  pooling_param {
+    pool: MAX
+    kernel_shape {
+      dim: 2
+      dim: 2
+      dim: 2
+    }
+    stride_shape {
+      dim: 2
+      dim: 2
+      dim: 2
+    }
   }
 }
 layer {
-  name: "scale4a_branch1"
-  type: "Scale"
-  bottom: "res4a_branch1"
-  top: "res4a_branch1"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res4a_branch2a"
-  type: "Convolution3D"
-  bottom: "res3b"
-  top: "res4a_branch2a"
+  name: "conv4a"
+  type: "NdConvolution"
+  bottom: "pool3"
+  top: "conv4a"
   param {
     lr_mult: 1
     decay_mult: 1
   }
-  convolution3d_param {
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
     num_output: 256
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 2
-    temporal_stride: 2
     weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+      type: "gaussian"
+      std: 0.01
     }
-    temporal_pad: 1
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+    pad_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
+    kernel_shape {
+      dim: 3
+      dim: 3
+      dim: 3
+    }
+    stride_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
   }
 }
 layer {
-  name: "bn4a_branch2a"
-  type: "BatchNorm"
-  bottom: "res4a_branch2a"
-  top: "res4a_branch2a"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale4a_branch2a"
-  type: "Scale"
-  bottom: "res4a_branch2a"
-  top: "res4a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res4a_branch2a_relu"
+  name: "relu4a"
   type: "ReLU"
-  bottom: "res4a_branch2a"
-  top: "res4a_branch2a"
+  bottom: "conv4a"
+  top: "conv4a"
 }
 layer {
-  name: "res4a_branch2b"
-  type: "Convolution3D"
-  bottom: "res4a_branch2a"
-  top: "res4a_branch2b"
+  name: "pool4"
+  type: "NdPooling"
+  bottom: "conv4a"
+  top: "pool4"
+  pooling_param {
+    pool: MAX
+    kernel_shape {
+      dim: 2
+      dim: 2
+      dim: 2
+    }
+    stride_shape {
+      dim: 2
+      dim: 2
+      dim: 2
+    }
+  }
+}
+layer {
+  name: "conv5a"
+  type: "NdConvolution"
+  bottom: "pool4"
+  top: "conv5a"
   param {
     lr_mult: 1
     decay_mult: 1
   }
-  convolution3d_param {
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  convolution_param {
     num_output: 256
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
     weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
+      type: "gaussian"
+      std: 0.01
     }
-    temporal_pad: 1
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+    pad_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
+    kernel_shape {
+      dim: 3
+      dim: 3
+      dim: 3
+    }
+    stride_shape {
+      dim: 1
+      dim: 1
+      dim: 1
+    }
   }
 }
 layer {
-  name: "bn4a_branch2b"
-  type: "BatchNorm"
-  bottom: "res4a_branch2b"
-  top: "res4a_branch2b"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale4a_branch2b"
-  type: "Scale"
-  bottom: "res4a_branch2b"
-  top: "res4a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res4a"
-  type: "Eltwise"
-  bottom: "res4a_branch1"
-  bottom: "res4a_branch2b"
-  top: "res4a"
-}
-layer {
-  name: "res4a_relu"
+  name: "relu5a"
   type: "ReLU"
-  bottom: "res4a"
-  top: "res4a"
-}
-layer {
-  name: "res4b_branch2a"
-  type: "Convolution3D"
-  bottom: "res4a"
-  top: "res4b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 256
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn4b_branch2a"
-  type: "BatchNorm"
-  bottom: "res4b_branch2a"
-  top: "res4b_branch2a"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale4b_branch2a"
-  type: "Scale"
-  bottom: "res4b_branch2a"
-  top: "res4b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res4b_branch2a_relu"
-  type: "ReLU"
-  bottom: "res4b_branch2a"
-  top: "res4b_branch2a"
-}
-layer {
-  name: "res4b_branch2b"
-  type: "Convolution3D"
-  bottom: "res4b_branch2a"
-  top: "res4b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 256
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn4b_branch2b"
-  type: "BatchNorm"
-  bottom: "res4b_branch2b"
-  top: "res4b_branch2b"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale4b_branch2b"
-  type: "Scale"
-  bottom: "res4b_branch2b"
-  top: "res4b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res4b"
-  type: "Eltwise"
-  bottom: "res4a"
-  bottom: "res4b_branch2b"
-  top: "res4b"
-}
-layer {
-  name: "res4b_relu"
-  type: "ReLU"
-  bottom: "res4b"
-  top: "res4b"
-}
-layer {
-  name: "res5a_branch1"
-  type: "Convolution3D"
-  bottom: "res4b"
-  top: "res5a_branch1"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 512
-    bias_term: false
-    pad: 0
-    kernel_size: 1
-    kernel_depth: 1
-    stride: 2
-    temporal_stride: 2
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 0
-  }
-}
-layer {
-  name: "bn5a_branch1"
-  type: "BatchNorm"
-  bottom: "res5a_branch1"
-  top: "res5a_branch1"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale5a_branch1"
-  type: "Scale"
-  bottom: "res5a_branch1"
-  top: "res5a_branch1"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res5a_branch2a"
-  type: "Convolution3D"
-  bottom: "res4b"
-  top: "res5a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 512
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 2
-    temporal_stride: 2
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn5a_branch2a"
-  type: "BatchNorm"
-  bottom: "res5a_branch2a"
-  top: "res5a_branch2a"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale5a_branch2a"
-  type: "Scale"
-  bottom: "res5a_branch2a"
-  top: "res5a_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res5a_branch2a_relu"
-  type: "ReLU"
-  bottom: "res5a_branch2a"
-  top: "res5a_branch2a"
-}
-layer {
-  name: "res5a_branch2b"
-  type: "Convolution3D"
-  bottom: "res5a_branch2a"
-  top: "res5a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 512
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn5a_branch2b"
-  type: "BatchNorm"
-  bottom: "res5a_branch2b"
-  top: "res5a_branch2b"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale5a_branch2b"
-  type: "Scale"
-  bottom: "res5a_branch2b"
-  top: "res5a_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res5a"
-  type: "Eltwise"
-  bottom: "res5a_branch1"
-  bottom: "res5a_branch2b"
-  top: "res5a"
-}
-layer {
-  name: "res5a_relu"
-  type: "ReLU"
-  bottom: "res5a"
-  top: "res5a"
-}
-layer {
-  name: "res5b_branch2a"
-  type: "Convolution3D"
-  bottom: "res5a"
-  top: "res5b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 512
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn5b_branch2a"
-  type: "BatchNorm"
-  bottom: "res5b_branch2a"
-  top: "res5b_branch2a"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale5b_branch2a"
-  type: "Scale"
-  bottom: "res5b_branch2a"
-  top: "res5b_branch2a"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res5b_branch2a_relu"
-  type: "ReLU"
-  bottom: "res5b_branch2a"
-  top: "res5b_branch2a"
-}
-layer {
-  name: "res5b_branch2b"
-  type: "Convolution3D"
-  bottom: "res5b_branch2a"
-  top: "res5b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  convolution3d_param {
-    num_output: 512
-    bias_term: false
-    pad: 1
-    kernel_size: 3
-    kernel_depth: 3
-    stride: 1
-    temporal_stride: 1
-    weight_filler {
-      type: "msra"
-      variance_norm: FAN_OUT
-    }
-    temporal_pad: 1
-  }
-}
-layer {
-  name: "bn5b_branch2b"
-  type: "BatchNorm"
-  bottom: "res5b_branch2b"
-  top: "res5b_branch2b"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  batch_norm_param {
-    use_global_stats: false
-  }
-}
-layer {
-  name: "scale5b_branch2b"
-  type: "Scale"
-  bottom: "res5b_branch2b"
-  top: "res5b_branch2b"
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 1
-    decay_mult: 0
-  }
-  scale_param {
-    bias_term: true
-  }
-}
-layer {
-  name: "res5b"
-  type: "Eltwise"
-  bottom: "res5a"
-  bottom: "res5b_branch2b"
-  top: "res5b"
-}
-layer {
-  name: "res5b_relu"
-  type: "ReLU"
-  bottom: "res5b"
-  top: "res5b"
+  bottom: "conv5a"
+  top: "conv5a"
 }
 layer {
   name: "pool5"
-  type: "Pooling3D"
-  bottom: "res5b"
+  type: "NdPooling"
+  bottom: "conv5a"
   top: "pool5"
-  pooling3d_param {
-    pool: AVE
-    kernel_size: 7
-    stride: 1
-    kernel_depth: 1
-    temporal_stride: 1
+  pooling_param {
+    pool: MAX
+    kernel_shape {
+      dim: 2
+      dim: 2
+      dim: 2
+    }
+    stride_shape {
+      dim: 2
+      dim: 2
+      dim: 2
+    }
   }
 }
 layer {
-  name: "fc8-new"
+  name: "fc6"
   type: "InnerProduct"
   bottom: "pool5"
-  top: "fc8-new"
+  top: "fc6"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 2048
+    weight_filler {
+      type: "gaussian"
+      std: 0.005
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu6"
+  type: "ReLU"
+  bottom: "fc6"
+  top: "fc6"
+}
+layer {
+  name: "drop6"
+  type: "Dropout"
+  bottom: "fc6"
+  top: "fc6"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+layer {
+  name: "fc7"
+  type: "InnerProduct"
+  bottom: "fc6"
+  top: "fc7"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 2048
+    weight_filler {
+      type: "gaussian"
+      std: 0.005
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu7"
+  type: "ReLU"
+  bottom: "fc7"
+  top: "fc7"
+}
+layer {
+  name: "drop7"
+  type: "Dropout"
+  bottom: "fc7"
+  top: "fc7"
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+layer {
+  name: "fc8"
+  type: "InnerProduct"
+  bottom: "fc7"
+  top: "fc8"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -1752,925 +687,71 @@ layer {
 layer {
   name: "loss"
   type: "TripletLoss"
-  bottom: "fc8-new"
-  bottom: "fc8-new"
-  bottom: "fc8-new"
+  bottom: "fc8"
+  bottom: "fc8"
+  bottom: "fc8"
   top: "loss"
   threshold_param {
     threshold: 1
   }
 }
-I0403 22:07:02.365797 21697 layer_factory.hpp:77] Creating layer data
-I0403 22:07:02.365888 21697 db_lmdb.cpp:35] Opened lmdb /home/lferrer/Documents/LMDB_MINI/train
-I0403 22:07:02.365905 21697 net.cpp:84] Creating Layer data
-I0403 22:07:02.365911 21697 net.cpp:380] data -> triplet
-I0403 22:07:02.369055 21697 data_layer.cpp:45] output data size: 5,144,112,112
-I0403 22:07:02.369328 21697 net.cpp:122] Setting up data
-I0403 22:07:02.369354 21697 net.cpp:129] Top shape: 5 144 112 112 (9031680)
-I0403 22:07:02.369357 21697 net.cpp:137] Memory required for data: 36126720
-I0403 22:07:02.369369 21697 layer_factory.hpp:77] Creating layer slicer
-I0403 22:07:02.369379 21697 net.cpp:84] Creating Layer slicer
-I0403 22:07:02.369385 21697 net.cpp:406] slicer <- triplet
-I0403 22:07:02.369410 21697 net.cpp:380] slicer -> anchor_stacked
-I0403 22:07:02.369420 21697 net.cpp:380] slicer -> positive_stacked
-I0403 22:07:02.369442 21697 net.cpp:380] slicer -> negative_stacked
-I0403 22:07:02.369453 21697 net.cpp:122] Setting up slicer
-I0403 22:07:02.369458 21697 net.cpp:129] Top shape: 5 48 112 112 (3010560)
-I0403 22:07:02.369462 21697 net.cpp:129] Top shape: 5 48 112 112 (3010560)
-I0403 22:07:02.369480 21697 net.cpp:129] Top shape: 5 48 112 112 (3010560)
-I0403 22:07:02.369482 21697 net.cpp:137] Memory required for data: 72253440
-I0403 22:07:02.369485 21697 layer_factory.hpp:77] Creating layer reshape_anchor
-I0403 22:07:02.369491 21697 net.cpp:84] Creating Layer reshape_anchor
-I0403 22:07:02.369493 21697 net.cpp:406] reshape_anchor <- anchor_stacked
-I0403 22:07:02.369504 21697 net.cpp:380] reshape_anchor -> anchor
-I0403 22:07:02.369520 21697 net.cpp:122] Setting up reshape_anchor
-I0403 22:07:02.369524 21697 net.cpp:129] Top shape: 5 3 16 112 112 (3010560)
-I0403 22:07:02.369526 21697 net.cpp:137] Memory required for data: 84295680
-I0403 22:07:02.369529 21697 layer_factory.hpp:77] Creating layer reshape_positive
-I0403 22:07:02.369534 21697 net.cpp:84] Creating Layer reshape_positive
-I0403 22:07:02.369535 21697 net.cpp:406] reshape_positive <- positive_stacked
-I0403 22:07:02.369540 21697 net.cpp:380] reshape_positive -> positive
-I0403 22:07:02.369544 21697 net.cpp:122] Setting up reshape_positive
-I0403 22:07:02.369563 21697 net.cpp:129] Top shape: 5 3 16 112 112 (3010560)
-I0403 22:07:02.369566 21697 net.cpp:137] Memory required for data: 96337920
-I0403 22:07:02.369568 21697 layer_factory.hpp:77] Creating layer reshape_negative
-I0403 22:07:02.369573 21697 net.cpp:84] Creating Layer reshape_negative
-I0403 22:07:02.369576 21697 net.cpp:406] reshape_negative <- negative_stacked
-I0403 22:07:02.369582 21697 net.cpp:380] reshape_negative -> negative
-I0403 22:07:02.369587 21697 net.cpp:122] Setting up reshape_negative
-I0403 22:07:02.369591 21697 net.cpp:129] Top shape: 5 3 16 112 112 (3010560)
-I0403 22:07:02.369593 21697 net.cpp:137] Memory required for data: 108380160
-I0403 22:07:02.369596 21697 layer_factory.hpp:77] Creating layer conv1
-I0403 22:07:02.369602 21697 net.cpp:84] Creating Layer conv1
-I0403 22:07:02.369604 21697 net.cpp:406] conv1 <- anchor
-I0403 22:07:02.369611 21697 net.cpp:380] conv1 -> conv1
-I0403 22:07:02.370172 21697 net.cpp:122] Setting up conv1
-I0403 22:07:02.370179 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.370182 21697 net.cpp:137] Memory required for data: 172605440
-I0403 22:07:02.370193 21697 layer_factory.hpp:77] Creating layer bn_conv1
-I0403 22:07:02.370200 21697 net.cpp:84] Creating Layer bn_conv1
-I0403 22:07:02.370203 21697 net.cpp:406] bn_conv1 <- conv1
-I0403 22:07:02.370208 21697 net.cpp:367] bn_conv1 -> conv1 (in-place)
-I0403 22:07:02.370296 21697 net.cpp:122] Setting up bn_conv1
-I0403 22:07:02.370301 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.370303 21697 net.cpp:137] Memory required for data: 236830720
-I0403 22:07:02.370311 21697 layer_factory.hpp:77] Creating layer scale_conv1
-I0403 22:07:02.370318 21697 net.cpp:84] Creating Layer scale_conv1
-I0403 22:07:02.370321 21697 net.cpp:406] scale_conv1 <- conv1
-I0403 22:07:02.370326 21697 net.cpp:367] scale_conv1 -> conv1 (in-place)
-I0403 22:07:02.370337 21697 layer_factory.hpp:77] Creating layer scale_conv1
-I0403 22:07:02.370750 21697 net.cpp:122] Setting up scale_conv1
-I0403 22:07:02.370761 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.370764 21697 net.cpp:137] Memory required for data: 301056000
-I0403 22:07:02.370772 21697 layer_factory.hpp:77] Creating layer conv1_relu
-I0403 22:07:02.370781 21697 net.cpp:84] Creating Layer conv1_relu
-I0403 22:07:02.370784 21697 net.cpp:406] conv1_relu <- conv1
-I0403 22:07:02.370789 21697 net.cpp:367] conv1_relu -> conv1 (in-place)
-I0403 22:07:02.370801 21697 net.cpp:122] Setting up conv1_relu
-I0403 22:07:02.370805 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.370806 21697 net.cpp:137] Memory required for data: 365281280
-I0403 22:07:02.370808 21697 layer_factory.hpp:77] Creating layer conv1_conv1_relu_0_split
-I0403 22:07:02.370812 21697 net.cpp:84] Creating Layer conv1_conv1_relu_0_split
-I0403 22:07:02.370815 21697 net.cpp:406] conv1_conv1_relu_0_split <- conv1
-I0403 22:07:02.370820 21697 net.cpp:380] conv1_conv1_relu_0_split -> conv1_conv1_relu_0_split_0
-I0403 22:07:02.370826 21697 net.cpp:380] conv1_conv1_relu_0_split -> conv1_conv1_relu_0_split_1
-I0403 22:07:02.370844 21697 net.cpp:122] Setting up conv1_conv1_relu_0_split
-I0403 22:07:02.370848 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.370851 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.370853 21697 net.cpp:137] Memory required for data: 493731840
-I0403 22:07:02.370856 21697 layer_factory.hpp:77] Creating layer res2a_branch1
-I0403 22:07:02.370864 21697 net.cpp:84] Creating Layer res2a_branch1
-I0403 22:07:02.370867 21697 net.cpp:406] res2a_branch1 <- conv1_conv1_relu_0_split_0
-I0403 22:07:02.370870 21697 net.cpp:380] res2a_branch1 -> res2a_branch1
-I0403 22:07:02.370971 21697 net.cpp:122] Setting up res2a_branch1
-I0403 22:07:02.370976 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.370978 21697 net.cpp:137] Memory required for data: 557957120
-I0403 22:07:02.370982 21697 layer_factory.hpp:77] Creating layer bn2a_branch1
-I0403 22:07:02.370986 21697 net.cpp:84] Creating Layer bn2a_branch1
-I0403 22:07:02.370990 21697 net.cpp:406] bn2a_branch1 <- res2a_branch1
-I0403 22:07:02.370995 21697 net.cpp:367] bn2a_branch1 -> res2a_branch1 (in-place)
-I0403 22:07:02.371088 21697 net.cpp:122] Setting up bn2a_branch1
-I0403 22:07:02.371095 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.371098 21697 net.cpp:137] Memory required for data: 622182400
-I0403 22:07:02.371106 21697 layer_factory.hpp:77] Creating layer scale2a_branch1
-I0403 22:07:02.371114 21697 net.cpp:84] Creating Layer scale2a_branch1
-I0403 22:07:02.371115 21697 net.cpp:406] scale2a_branch1 <- res2a_branch1
-I0403 22:07:02.371119 21697 net.cpp:367] scale2a_branch1 -> res2a_branch1 (in-place)
-I0403 22:07:02.371127 21697 layer_factory.hpp:77] Creating layer scale2a_branch1
-I0403 22:07:02.371274 21697 net.cpp:122] Setting up scale2a_branch1
-I0403 22:07:02.371279 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.371281 21697 net.cpp:137] Memory required for data: 686407680
-I0403 22:07:02.371285 21697 layer_factory.hpp:77] Creating layer res2a_branch2a
-I0403 22:07:02.371291 21697 net.cpp:84] Creating Layer res2a_branch2a
-I0403 22:07:02.371294 21697 net.cpp:406] res2a_branch2a <- conv1_conv1_relu_0_split_1
-I0403 22:07:02.371297 21697 net.cpp:380] res2a_branch2a -> res2a_branch2a
-I0403 22:07:02.372581 21697 net.cpp:122] Setting up res2a_branch2a
-I0403 22:07:02.372598 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.372601 21697 net.cpp:137] Memory required for data: 750632960
-I0403 22:07:02.372611 21697 layer_factory.hpp:77] Creating layer bn2a_branch2a
-I0403 22:07:02.372618 21697 net.cpp:84] Creating Layer bn2a_branch2a
-I0403 22:07:02.372622 21697 net.cpp:406] bn2a_branch2a <- res2a_branch2a
-I0403 22:07:02.372629 21697 net.cpp:367] bn2a_branch2a -> res2a_branch2a (in-place)
-I0403 22:07:02.372722 21697 net.cpp:122] Setting up bn2a_branch2a
-I0403 22:07:02.372730 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.372731 21697 net.cpp:137] Memory required for data: 814858240
-I0403 22:07:02.372737 21697 layer_factory.hpp:77] Creating layer scale2a_branch2a
-I0403 22:07:02.372743 21697 net.cpp:84] Creating Layer scale2a_branch2a
-I0403 22:07:02.372745 21697 net.cpp:406] scale2a_branch2a <- res2a_branch2a
-I0403 22:07:02.372750 21697 net.cpp:367] scale2a_branch2a -> res2a_branch2a (in-place)
-I0403 22:07:02.372759 21697 layer_factory.hpp:77] Creating layer scale2a_branch2a
-I0403 22:07:02.372913 21697 net.cpp:122] Setting up scale2a_branch2a
-I0403 22:07:02.372918 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.372920 21697 net.cpp:137] Memory required for data: 879083520
-I0403 22:07:02.372928 21697 layer_factory.hpp:77] Creating layer res2a_branch2a_relu
-I0403 22:07:02.372938 21697 net.cpp:84] Creating Layer res2a_branch2a_relu
-I0403 22:07:02.372941 21697 net.cpp:406] res2a_branch2a_relu <- res2a_branch2a
-I0403 22:07:02.372943 21697 net.cpp:367] res2a_branch2a_relu -> res2a_branch2a (in-place)
-I0403 22:07:02.372948 21697 net.cpp:122] Setting up res2a_branch2a_relu
-I0403 22:07:02.372967 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.372968 21697 net.cpp:137] Memory required for data: 943308800
-I0403 22:07:02.372970 21697 layer_factory.hpp:77] Creating layer res2a_branch2b
-I0403 22:07:02.372975 21697 net.cpp:84] Creating Layer res2a_branch2b
-I0403 22:07:02.372978 21697 net.cpp:406] res2a_branch2b <- res2a_branch2a
-I0403 22:07:02.372982 21697 net.cpp:380] res2a_branch2b -> res2a_branch2b
-I0403 22:07:02.374157 21697 net.cpp:122] Setting up res2a_branch2b
-I0403 22:07:02.374166 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.374168 21697 net.cpp:137] Memory required for data: 1007534080
-I0403 22:07:02.374173 21697 layer_factory.hpp:77] Creating layer bn2a_branch2b
-I0403 22:07:02.374179 21697 net.cpp:84] Creating Layer bn2a_branch2b
-I0403 22:07:02.374182 21697 net.cpp:406] bn2a_branch2b <- res2a_branch2b
-I0403 22:07:02.374186 21697 net.cpp:367] bn2a_branch2b -> res2a_branch2b (in-place)
-I0403 22:07:02.374258 21697 net.cpp:122] Setting up bn2a_branch2b
-I0403 22:07:02.374263 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.374264 21697 net.cpp:137] Memory required for data: 1071759360
-I0403 22:07:02.374269 21697 layer_factory.hpp:77] Creating layer scale2a_branch2b
-I0403 22:07:02.374272 21697 net.cpp:84] Creating Layer scale2a_branch2b
-I0403 22:07:02.374274 21697 net.cpp:406] scale2a_branch2b <- res2a_branch2b
-I0403 22:07:02.374279 21697 net.cpp:367] scale2a_branch2b -> res2a_branch2b (in-place)
-I0403 22:07:02.374286 21697 layer_factory.hpp:77] Creating layer scale2a_branch2b
-I0403 22:07:02.374418 21697 net.cpp:122] Setting up scale2a_branch2b
-I0403 22:07:02.374421 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.374423 21697 net.cpp:137] Memory required for data: 1135984640
-I0403 22:07:02.374428 21697 layer_factory.hpp:77] Creating layer res2a
-I0403 22:07:02.374431 21697 net.cpp:84] Creating Layer res2a
-I0403 22:07:02.374434 21697 net.cpp:406] res2a <- res2a_branch1
-I0403 22:07:02.374472 21697 net.cpp:406] res2a <- res2a_branch2b
-I0403 22:07:02.374480 21697 net.cpp:380] res2a -> res2a
-I0403 22:07:02.374490 21697 net.cpp:122] Setting up res2a
-I0403 22:07:02.374493 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.374495 21697 net.cpp:137] Memory required for data: 1200209920
-I0403 22:07:02.374498 21697 layer_factory.hpp:77] Creating layer res2a_relu
-I0403 22:07:02.374502 21697 net.cpp:84] Creating Layer res2a_relu
-I0403 22:07:02.374505 21697 net.cpp:406] res2a_relu <- res2a
-I0403 22:07:02.374508 21697 net.cpp:367] res2a_relu -> res2a (in-place)
-I0403 22:07:02.374513 21697 net.cpp:122] Setting up res2a_relu
-I0403 22:07:02.374516 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.374518 21697 net.cpp:137] Memory required for data: 1264435200
-I0403 22:07:02.374521 21697 layer_factory.hpp:77] Creating layer res2a_res2a_relu_0_split
-I0403 22:07:02.374527 21697 net.cpp:84] Creating Layer res2a_res2a_relu_0_split
-I0403 22:07:02.374531 21697 net.cpp:406] res2a_res2a_relu_0_split <- res2a
-I0403 22:07:02.374534 21697 net.cpp:380] res2a_res2a_relu_0_split -> res2a_res2a_relu_0_split_0
-I0403 22:07:02.374541 21697 net.cpp:380] res2a_res2a_relu_0_split -> res2a_res2a_relu_0_split_1
-I0403 22:07:02.374547 21697 net.cpp:122] Setting up res2a_res2a_relu_0_split
-I0403 22:07:02.374549 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.374552 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.374554 21697 net.cpp:137] Memory required for data: 1392885760
-I0403 22:07:02.374557 21697 layer_factory.hpp:77] Creating layer res2b_branch2a
-I0403 22:07:02.374562 21697 net.cpp:84] Creating Layer res2b_branch2a
-I0403 22:07:02.374563 21697 net.cpp:406] res2b_branch2a <- res2a_res2a_relu_0_split_0
-I0403 22:07:02.374583 21697 net.cpp:380] res2b_branch2a -> res2b_branch2a
-I0403 22:07:02.376493 21697 net.cpp:122] Setting up res2b_branch2a
-I0403 22:07:02.376525 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.376529 21697 net.cpp:137] Memory required for data: 1457111040
-I0403 22:07:02.376551 21697 layer_factory.hpp:77] Creating layer bn2b_branch2a
-I0403 22:07:02.376560 21697 net.cpp:84] Creating Layer bn2b_branch2a
-I0403 22:07:02.376564 21697 net.cpp:406] bn2b_branch2a <- res2b_branch2a
-I0403 22:07:02.376572 21697 net.cpp:367] bn2b_branch2a -> res2b_branch2a (in-place)
-I0403 22:07:02.376652 21697 net.cpp:122] Setting up bn2b_branch2a
-I0403 22:07:02.376658 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.376660 21697 net.cpp:137] Memory required for data: 1521336320
-I0403 22:07:02.376665 21697 layer_factory.hpp:77] Creating layer scale2b_branch2a
-I0403 22:07:02.376670 21697 net.cpp:84] Creating Layer scale2b_branch2a
-I0403 22:07:02.376672 21697 net.cpp:406] scale2b_branch2a <- res2b_branch2a
-I0403 22:07:02.376677 21697 net.cpp:367] scale2b_branch2a -> res2b_branch2a (in-place)
-I0403 22:07:02.376687 21697 layer_factory.hpp:77] Creating layer scale2b_branch2a
-I0403 22:07:02.376821 21697 net.cpp:122] Setting up scale2b_branch2a
-I0403 22:07:02.376826 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.376827 21697 net.cpp:137] Memory required for data: 1585561600
-I0403 22:07:02.376832 21697 layer_factory.hpp:77] Creating layer res2b_branch2a_relu
-I0403 22:07:02.376835 21697 net.cpp:84] Creating Layer res2b_branch2a_relu
-I0403 22:07:02.376837 21697 net.cpp:406] res2b_branch2a_relu <- res2b_branch2a
-I0403 22:07:02.376842 21697 net.cpp:367] res2b_branch2a_relu -> res2b_branch2a (in-place)
-I0403 22:07:02.376847 21697 net.cpp:122] Setting up res2b_branch2a_relu
-I0403 22:07:02.376850 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.376852 21697 net.cpp:137] Memory required for data: 1649786880
-I0403 22:07:02.376855 21697 layer_factory.hpp:77] Creating layer res2b_branch2b
-I0403 22:07:02.376859 21697 net.cpp:84] Creating Layer res2b_branch2b
-I0403 22:07:02.376862 21697 net.cpp:406] res2b_branch2b <- res2b_branch2a
-I0403 22:07:02.376868 21697 net.cpp:380] res2b_branch2b -> res2b_branch2b
-I0403 22:07:02.378038 21697 net.cpp:122] Setting up res2b_branch2b
-I0403 22:07:02.378103 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.378108 21697 net.cpp:137] Memory required for data: 1714012160
-I0403 22:07:02.378120 21697 layer_factory.hpp:77] Creating layer bn2b_branch2b
-I0403 22:07:02.378134 21697 net.cpp:84] Creating Layer bn2b_branch2b
-I0403 22:07:02.378139 21697 net.cpp:406] bn2b_branch2b <- res2b_branch2b
-I0403 22:07:02.378144 21697 net.cpp:367] bn2b_branch2b -> res2b_branch2b (in-place)
-I0403 22:07:02.378281 21697 net.cpp:122] Setting up bn2b_branch2b
-I0403 22:07:02.378316 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.378321 21697 net.cpp:137] Memory required for data: 1778237440
-I0403 22:07:02.378341 21697 layer_factory.hpp:77] Creating layer scale2b_branch2b
-I0403 22:07:02.378351 21697 net.cpp:84] Creating Layer scale2b_branch2b
-I0403 22:07:02.378355 21697 net.cpp:406] scale2b_branch2b <- res2b_branch2b
-I0403 22:07:02.378362 21697 net.cpp:367] scale2b_branch2b -> res2b_branch2b (in-place)
-I0403 22:07:02.378378 21697 layer_factory.hpp:77] Creating layer scale2b_branch2b
-I0403 22:07:02.378587 21697 net.cpp:122] Setting up scale2b_branch2b
-I0403 22:07:02.378598 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.378602 21697 net.cpp:137] Memory required for data: 1842462720
-I0403 22:07:02.378607 21697 layer_factory.hpp:77] Creating layer res2b
-I0403 22:07:02.378612 21697 net.cpp:84] Creating Layer res2b
-I0403 22:07:02.378615 21697 net.cpp:406] res2b <- res2a_res2a_relu_0_split_1
-I0403 22:07:02.378619 21697 net.cpp:406] res2b <- res2b_branch2b
-I0403 22:07:02.378623 21697 net.cpp:380] res2b -> res2b
-I0403 22:07:02.378629 21697 net.cpp:122] Setting up res2b
-I0403 22:07:02.378633 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.378635 21697 net.cpp:137] Memory required for data: 1906688000
-I0403 22:07:02.378638 21697 layer_factory.hpp:77] Creating layer res2b_relu
-I0403 22:07:02.378643 21697 net.cpp:84] Creating Layer res2b_relu
-I0403 22:07:02.378667 21697 net.cpp:406] res2b_relu <- res2b
-I0403 22:07:02.378671 21697 net.cpp:367] res2b_relu -> res2b (in-place)
-I0403 22:07:02.378676 21697 net.cpp:122] Setting up res2b_relu
-I0403 22:07:02.378679 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.378681 21697 net.cpp:137] Memory required for data: 1970913280
-I0403 22:07:02.378684 21697 layer_factory.hpp:77] Creating layer res2b_res2b_relu_0_split
-I0403 22:07:02.378696 21697 net.cpp:84] Creating Layer res2b_res2b_relu_0_split
-I0403 22:07:02.378698 21697 net.cpp:406] res2b_res2b_relu_0_split <- res2b
-I0403 22:07:02.378702 21697 net.cpp:380] res2b_res2b_relu_0_split -> res2b_res2b_relu_0_split_0
-I0403 22:07:02.378708 21697 net.cpp:380] res2b_res2b_relu_0_split -> res2b_res2b_relu_0_split_1
-I0403 22:07:02.378713 21697 net.cpp:122] Setting up res2b_res2b_relu_0_split
-I0403 22:07:02.378717 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.378720 21697 net.cpp:129] Top shape: 5 64 16 56 56 (16056320)
-I0403 22:07:02.378722 21697 net.cpp:137] Memory required for data: 2099363840
-I0403 22:07:02.378724 21697 layer_factory.hpp:77] Creating layer res3a_branch1
-I0403 22:07:02.378731 21697 net.cpp:84] Creating Layer res3a_branch1
-I0403 22:07:02.378733 21697 net.cpp:406] res3a_branch1 <- res2b_res2b_relu_0_split_0
-I0403 22:07:02.378738 21697 net.cpp:380] res3a_branch1 -> res3a_branch1
-I0403 22:07:02.378860 21697 net.cpp:122] Setting up res3a_branch1
-I0403 22:07:02.378866 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.378868 21697 net.cpp:137] Memory required for data: 2115420160
-I0403 22:07:02.378872 21697 layer_factory.hpp:77] Creating layer bn3a_branch1
-I0403 22:07:02.378880 21697 net.cpp:84] Creating Layer bn3a_branch1
-I0403 22:07:02.378882 21697 net.cpp:406] bn3a_branch1 <- res3a_branch1
-I0403 22:07:02.378886 21697 net.cpp:367] bn3a_branch1 -> res3a_branch1 (in-place)
-I0403 22:07:02.378906 21697 net.cpp:122] Setting up bn3a_branch1
-I0403 22:07:02.378909 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.378911 21697 net.cpp:137] Memory required for data: 2131476480
-I0403 22:07:02.378916 21697 layer_factory.hpp:77] Creating layer scale3a_branch1
-I0403 22:07:02.378922 21697 net.cpp:84] Creating Layer scale3a_branch1
-I0403 22:07:02.378924 21697 net.cpp:406] scale3a_branch1 <- res3a_branch1
-I0403 22:07:02.378927 21697 net.cpp:367] scale3a_branch1 -> res3a_branch1 (in-place)
-I0403 22:07:02.378939 21697 layer_factory.hpp:77] Creating layer scale3a_branch1
-I0403 22:07:02.378968 21697 net.cpp:122] Setting up scale3a_branch1
-I0403 22:07:02.378973 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.378974 21697 net.cpp:137] Memory required for data: 2147532800
-I0403 22:07:02.378978 21697 layer_factory.hpp:77] Creating layer res3a_branch2a
-I0403 22:07:02.378983 21697 net.cpp:84] Creating Layer res3a_branch2a
-I0403 22:07:02.378985 21697 net.cpp:406] res3a_branch2a <- res2b_res2b_relu_0_split_1
-I0403 22:07:02.378990 21697 net.cpp:380] res3a_branch2a -> res3a_branch2a
-I0403 22:07:02.382834 21697 net.cpp:122] Setting up res3a_branch2a
-I0403 22:07:02.382870 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.382875 21697 net.cpp:137] Memory required for data: 2163589120
-I0403 22:07:02.382886 21697 layer_factory.hpp:77] Creating layer bn3a_branch2a
-I0403 22:07:02.382899 21697 net.cpp:84] Creating Layer bn3a_branch2a
-I0403 22:07:02.382905 21697 net.cpp:406] bn3a_branch2a <- res3a_branch2a
-I0403 22:07:02.382915 21697 net.cpp:367] bn3a_branch2a -> res3a_branch2a (in-place)
-I0403 22:07:02.382944 21697 net.cpp:122] Setting up bn3a_branch2a
-I0403 22:07:02.382948 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.382951 21697 net.cpp:137] Memory required for data: 2179645440
-I0403 22:07:02.382956 21697 layer_factory.hpp:77] Creating layer scale3a_branch2a
-I0403 22:07:02.382961 21697 net.cpp:84] Creating Layer scale3a_branch2a
-I0403 22:07:02.382963 21697 net.cpp:406] scale3a_branch2a <- res3a_branch2a
-I0403 22:07:02.382966 21697 net.cpp:367] scale3a_branch2a -> res3a_branch2a (in-place)
-I0403 22:07:02.382992 21697 layer_factory.hpp:77] Creating layer scale3a_branch2a
-I0403 22:07:02.383024 21697 net.cpp:122] Setting up scale3a_branch2a
-I0403 22:07:02.383028 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.383030 21697 net.cpp:137] Memory required for data: 2195701760
-I0403 22:07:02.383034 21697 layer_factory.hpp:77] Creating layer res3a_branch2a_relu
-I0403 22:07:02.383038 21697 net.cpp:84] Creating Layer res3a_branch2a_relu
-I0403 22:07:02.383041 21697 net.cpp:406] res3a_branch2a_relu <- res3a_branch2a
-I0403 22:07:02.383045 21697 net.cpp:367] res3a_branch2a_relu -> res3a_branch2a (in-place)
-I0403 22:07:02.383049 21697 net.cpp:122] Setting up res3a_branch2a_relu
-I0403 22:07:02.383052 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.383054 21697 net.cpp:137] Memory required for data: 2211758080
-I0403 22:07:02.383056 21697 layer_factory.hpp:77] Creating layer res3a_branch2b
-I0403 22:07:02.383061 21697 net.cpp:84] Creating Layer res3a_branch2b
-I0403 22:07:02.383064 21697 net.cpp:406] res3a_branch2b <- res3a_branch2a
-I0403 22:07:02.383067 21697 net.cpp:380] res3a_branch2b -> res3a_branch2b
-I0403 22:07:02.388552 21697 net.cpp:122] Setting up res3a_branch2b
-I0403 22:07:02.388602 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.388605 21697 net.cpp:137] Memory required for data: 2227814400
-I0403 22:07:02.388613 21697 layer_factory.hpp:77] Creating layer bn3a_branch2b
-I0403 22:07:02.388625 21697 net.cpp:84] Creating Layer bn3a_branch2b
-I0403 22:07:02.388630 21697 net.cpp:406] bn3a_branch2b <- res3a_branch2b
-I0403 22:07:02.388635 21697 net.cpp:367] bn3a_branch2b -> res3a_branch2b (in-place)
-I0403 22:07:02.388659 21697 net.cpp:122] Setting up bn3a_branch2b
-I0403 22:07:02.388662 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.388664 21697 net.cpp:137] Memory required for data: 2243870720
-I0403 22:07:02.388669 21697 layer_factory.hpp:77] Creating layer scale3a_branch2b
-I0403 22:07:02.388675 21697 net.cpp:84] Creating Layer scale3a_branch2b
-I0403 22:07:02.388677 21697 net.cpp:406] scale3a_branch2b <- res3a_branch2b
-I0403 22:07:02.388684 21697 net.cpp:367] scale3a_branch2b -> res3a_branch2b (in-place)
-I0403 22:07:02.388692 21697 layer_factory.hpp:77] Creating layer scale3a_branch2b
-I0403 22:07:02.388718 21697 net.cpp:122] Setting up scale3a_branch2b
-I0403 22:07:02.388722 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.388725 21697 net.cpp:137] Memory required for data: 2259927040
-I0403 22:07:02.388728 21697 layer_factory.hpp:77] Creating layer res3a
-I0403 22:07:02.388734 21697 net.cpp:84] Creating Layer res3a
-I0403 22:07:02.388736 21697 net.cpp:406] res3a <- res3a_branch1
-I0403 22:07:02.388741 21697 net.cpp:406] res3a <- res3a_branch2b
-I0403 22:07:02.388743 21697 net.cpp:380] res3a -> res3a
-I0403 22:07:02.388749 21697 net.cpp:122] Setting up res3a
-I0403 22:07:02.388754 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.388756 21697 net.cpp:137] Memory required for data: 2275983360
-I0403 22:07:02.388758 21697 layer_factory.hpp:77] Creating layer res3a_relu
-I0403 22:07:02.388762 21697 net.cpp:84] Creating Layer res3a_relu
-I0403 22:07:02.388764 21697 net.cpp:406] res3a_relu <- res3a
-I0403 22:07:02.388768 21697 net.cpp:367] res3a_relu -> res3a (in-place)
-I0403 22:07:02.388772 21697 net.cpp:122] Setting up res3a_relu
-I0403 22:07:02.388774 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.388777 21697 net.cpp:137] Memory required for data: 2292039680
-I0403 22:07:02.388779 21697 layer_factory.hpp:77] Creating layer res3a_res3a_relu_0_split
-I0403 22:07:02.388782 21697 net.cpp:84] Creating Layer res3a_res3a_relu_0_split
-I0403 22:07:02.388784 21697 net.cpp:406] res3a_res3a_relu_0_split <- res3a
-I0403 22:07:02.388789 21697 net.cpp:380] res3a_res3a_relu_0_split -> res3a_res3a_relu_0_split_0
-I0403 22:07:02.388794 21697 net.cpp:380] res3a_res3a_relu_0_split -> res3a_res3a_relu_0_split_1
-I0403 22:07:02.388800 21697 net.cpp:122] Setting up res3a_res3a_relu_0_split
-I0403 22:07:02.388818 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.388821 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.388824 21697 net.cpp:137] Memory required for data: 2324152320
-I0403 22:07:02.388826 21697 layer_factory.hpp:77] Creating layer res3b_branch2a
-I0403 22:07:02.388830 21697 net.cpp:84] Creating Layer res3b_branch2a
-I0403 22:07:02.388833 21697 net.cpp:406] res3b_branch2a <- res3a_res3a_relu_0_split_0
-I0403 22:07:02.388837 21697 net.cpp:380] res3b_branch2a -> res3b_branch2a
-I0403 22:07:02.393375 21697 net.cpp:122] Setting up res3b_branch2a
-I0403 22:07:02.393442 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.393446 21697 net.cpp:137] Memory required for data: 2340208640
-I0403 22:07:02.393457 21697 layer_factory.hpp:77] Creating layer bn3b_branch2a
-I0403 22:07:02.393467 21697 net.cpp:84] Creating Layer bn3b_branch2a
-I0403 22:07:02.393472 21697 net.cpp:406] bn3b_branch2a <- res3b_branch2a
-I0403 22:07:02.393496 21697 net.cpp:367] bn3b_branch2a -> res3b_branch2a (in-place)
-I0403 22:07:02.393537 21697 net.cpp:122] Setting up bn3b_branch2a
-I0403 22:07:02.393543 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.393545 21697 net.cpp:137] Memory required for data: 2356264960
-I0403 22:07:02.393550 21697 layer_factory.hpp:77] Creating layer scale3b_branch2a
-I0403 22:07:02.393558 21697 net.cpp:84] Creating Layer scale3b_branch2a
-I0403 22:07:02.393574 21697 net.cpp:406] scale3b_branch2a <- res3b_branch2a
-I0403 22:07:02.393582 21697 net.cpp:367] scale3b_branch2a -> res3b_branch2a (in-place)
-I0403 22:07:02.393594 21697 layer_factory.hpp:77] Creating layer scale3b_branch2a
-I0403 22:07:02.393628 21697 net.cpp:122] Setting up scale3b_branch2a
-I0403 22:07:02.393632 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.393635 21697 net.cpp:137] Memory required for data: 2372321280
-I0403 22:07:02.393638 21697 layer_factory.hpp:77] Creating layer res3b_branch2a_relu
-I0403 22:07:02.393643 21697 net.cpp:84] Creating Layer res3b_branch2a_relu
-I0403 22:07:02.393646 21697 net.cpp:406] res3b_branch2a_relu <- res3b_branch2a
-I0403 22:07:02.393651 21697 net.cpp:367] res3b_branch2a_relu -> res3b_branch2a (in-place)
-I0403 22:07:02.393654 21697 net.cpp:122] Setting up res3b_branch2a_relu
-I0403 22:07:02.393658 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.393661 21697 net.cpp:137] Memory required for data: 2388377600
-I0403 22:07:02.393661 21697 layer_factory.hpp:77] Creating layer res3b_branch2b
-I0403 22:07:02.393666 21697 net.cpp:84] Creating Layer res3b_branch2b
-I0403 22:07:02.393669 21697 net.cpp:406] res3b_branch2b <- res3b_branch2a
-I0403 22:07:02.393676 21697 net.cpp:380] res3b_branch2b -> res3b_branch2b
-I0403 22:07:02.398198 21697 net.cpp:122] Setting up res3b_branch2b
-I0403 22:07:02.398232 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.398236 21697 net.cpp:137] Memory required for data: 2404433920
-I0403 22:07:02.398262 21697 layer_factory.hpp:77] Creating layer bn3b_branch2b
-I0403 22:07:02.398277 21697 net.cpp:84] Creating Layer bn3b_branch2b
-I0403 22:07:02.398296 21697 net.cpp:406] bn3b_branch2b <- res3b_branch2b
-I0403 22:07:02.398304 21697 net.cpp:367] bn3b_branch2b -> res3b_branch2b (in-place)
-I0403 22:07:02.398332 21697 net.cpp:122] Setting up bn3b_branch2b
-I0403 22:07:02.398336 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.398339 21697 net.cpp:137] Memory required for data: 2420490240
-I0403 22:07:02.398344 21697 layer_factory.hpp:77] Creating layer scale3b_branch2b
-I0403 22:07:02.398380 21697 net.cpp:84] Creating Layer scale3b_branch2b
-I0403 22:07:02.398385 21697 net.cpp:406] scale3b_branch2b <- res3b_branch2b
-I0403 22:07:02.398406 21697 net.cpp:367] scale3b_branch2b -> res3b_branch2b (in-place)
-I0403 22:07:02.398418 21697 layer_factory.hpp:77] Creating layer scale3b_branch2b
-I0403 22:07:02.398447 21697 net.cpp:122] Setting up scale3b_branch2b
-I0403 22:07:02.398452 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.398453 21697 net.cpp:137] Memory required for data: 2436546560
-I0403 22:07:02.398485 21697 layer_factory.hpp:77] Creating layer res3b
-I0403 22:07:02.398489 21697 net.cpp:84] Creating Layer res3b
-I0403 22:07:02.398493 21697 net.cpp:406] res3b <- res3a_res3a_relu_0_split_1
-I0403 22:07:02.398495 21697 net.cpp:406] res3b <- res3b_branch2b
-I0403 22:07:02.398499 21697 net.cpp:380] res3b -> res3b
-I0403 22:07:02.398540 21697 net.cpp:122] Setting up res3b
-I0403 22:07:02.398543 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.398546 21697 net.cpp:137] Memory required for data: 2452602880
-I0403 22:07:02.398548 21697 layer_factory.hpp:77] Creating layer res3b_relu
-I0403 22:07:02.398552 21697 net.cpp:84] Creating Layer res3b_relu
-I0403 22:07:02.398555 21697 net.cpp:406] res3b_relu <- res3b
-I0403 22:07:02.398561 21697 net.cpp:367] res3b_relu -> res3b (in-place)
-I0403 22:07:02.398566 21697 net.cpp:122] Setting up res3b_relu
-I0403 22:07:02.398568 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.398571 21697 net.cpp:137] Memory required for data: 2468659200
-I0403 22:07:02.398572 21697 layer_factory.hpp:77] Creating layer res3b_res3b_relu_0_split
-I0403 22:07:02.398577 21697 net.cpp:84] Creating Layer res3b_res3b_relu_0_split
-I0403 22:07:02.398579 21697 net.cpp:406] res3b_res3b_relu_0_split <- res3b
-I0403 22:07:02.398583 21697 net.cpp:380] res3b_res3b_relu_0_split -> res3b_res3b_relu_0_split_0
-I0403 22:07:02.398587 21697 net.cpp:380] res3b_res3b_relu_0_split -> res3b_res3b_relu_0_split_1
-I0403 22:07:02.398593 21697 net.cpp:122] Setting up res3b_res3b_relu_0_split
-I0403 22:07:02.398597 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.398613 21697 net.cpp:129] Top shape: 5 128 8 28 28 (4014080)
-I0403 22:07:02.398615 21697 net.cpp:137] Memory required for data: 2500771840
-I0403 22:07:02.398618 21697 layer_factory.hpp:77] Creating layer res4a_branch1
-I0403 22:07:02.398625 21697 net.cpp:84] Creating Layer res4a_branch1
-I0403 22:07:02.398627 21697 net.cpp:406] res4a_branch1 <- res3b_res3b_relu_0_split_0
-I0403 22:07:02.398630 21697 net.cpp:380] res4a_branch1 -> res4a_branch1
-I0403 22:07:02.398998 21697 net.cpp:122] Setting up res4a_branch1
-I0403 22:07:02.399006 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.399008 21697 net.cpp:137] Memory required for data: 2504785920
-I0403 22:07:02.399013 21697 layer_factory.hpp:77] Creating layer bn4a_branch1
-I0403 22:07:02.399019 21697 net.cpp:84] Creating Layer bn4a_branch1
-I0403 22:07:02.399021 21697 net.cpp:406] bn4a_branch1 <- res4a_branch1
-I0403 22:07:02.399027 21697 net.cpp:367] bn4a_branch1 -> res4a_branch1 (in-place)
-I0403 22:07:02.399044 21697 net.cpp:122] Setting up bn4a_branch1
-I0403 22:07:02.399050 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.399052 21697 net.cpp:137] Memory required for data: 2508800000
-I0403 22:07:02.399057 21697 layer_factory.hpp:77] Creating layer scale4a_branch1
-I0403 22:07:02.399061 21697 net.cpp:84] Creating Layer scale4a_branch1
-I0403 22:07:02.399065 21697 net.cpp:406] scale4a_branch1 <- res4a_branch1
-I0403 22:07:02.399068 21697 net.cpp:367] scale4a_branch1 -> res4a_branch1 (in-place)
-I0403 22:07:02.399075 21697 layer_factory.hpp:77] Creating layer scale4a_branch1
-I0403 22:07:02.399090 21697 net.cpp:122] Setting up scale4a_branch1
-I0403 22:07:02.399094 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.399096 21697 net.cpp:137] Memory required for data: 2512814080
-I0403 22:07:02.399099 21697 layer_factory.hpp:77] Creating layer res4a_branch2a
-I0403 22:07:02.399104 21697 net.cpp:84] Creating Layer res4a_branch2a
-I0403 22:07:02.399107 21697 net.cpp:406] res4a_branch2a <- res3b_res3b_relu_0_split_1
-I0403 22:07:02.399112 21697 net.cpp:380] res4a_branch2a -> res4a_branch2a
-I0403 22:07:02.407912 21697 net.cpp:122] Setting up res4a_branch2a
-I0403 22:07:02.407948 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.407951 21697 net.cpp:137] Memory required for data: 2516828160
-I0403 22:07:02.407960 21697 layer_factory.hpp:77] Creating layer bn4a_branch2a
-I0403 22:07:02.407986 21697 net.cpp:84] Creating Layer bn4a_branch2a
-I0403 22:07:02.407992 21697 net.cpp:406] bn4a_branch2a <- res4a_branch2a
-I0403 22:07:02.408013 21697 net.cpp:367] bn4a_branch2a -> res4a_branch2a (in-place)
-I0403 22:07:02.408036 21697 net.cpp:122] Setting up bn4a_branch2a
-I0403 22:07:02.408041 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.408042 21697 net.cpp:137] Memory required for data: 2520842240
-I0403 22:07:02.408048 21697 layer_factory.hpp:77] Creating layer scale4a_branch2a
-I0403 22:07:02.408054 21697 net.cpp:84] Creating Layer scale4a_branch2a
-I0403 22:07:02.408057 21697 net.cpp:406] scale4a_branch2a <- res4a_branch2a
-I0403 22:07:02.408061 21697 net.cpp:367] scale4a_branch2a -> res4a_branch2a (in-place)
-I0403 22:07:02.408071 21697 layer_factory.hpp:77] Creating layer scale4a_branch2a
-I0403 22:07:02.408088 21697 net.cpp:122] Setting up scale4a_branch2a
-I0403 22:07:02.408092 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.408094 21697 net.cpp:137] Memory required for data: 2524856320
-I0403 22:07:02.408098 21697 layer_factory.hpp:77] Creating layer res4a_branch2a_relu
-I0403 22:07:02.408102 21697 net.cpp:84] Creating Layer res4a_branch2a_relu
-I0403 22:07:02.408104 21697 net.cpp:406] res4a_branch2a_relu <- res4a_branch2a
-I0403 22:07:02.408107 21697 net.cpp:367] res4a_branch2a_relu -> res4a_branch2a (in-place)
-I0403 22:07:02.408113 21697 net.cpp:122] Setting up res4a_branch2a_relu
-I0403 22:07:02.408115 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.408118 21697 net.cpp:137] Memory required for data: 2528870400
-I0403 22:07:02.408119 21697 layer_factory.hpp:77] Creating layer res4a_branch2b
-I0403 22:07:02.408124 21697 net.cpp:84] Creating Layer res4a_branch2b
-I0403 22:07:02.408126 21697 net.cpp:406] res4a_branch2b <- res4a_branch2a
-I0403 22:07:02.408131 21697 net.cpp:380] res4a_branch2b -> res4a_branch2b
-I0403 22:07:02.425964 21697 net.cpp:122] Setting up res4a_branch2b
-I0403 22:07:02.426005 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.426010 21697 net.cpp:137] Memory required for data: 2532884480
-I0403 22:07:02.426023 21697 layer_factory.hpp:77] Creating layer bn4a_branch2b
-I0403 22:07:02.426051 21697 net.cpp:84] Creating Layer bn4a_branch2b
-I0403 22:07:02.426059 21697 net.cpp:406] bn4a_branch2b <- res4a_branch2b
-I0403 22:07:02.426065 21697 net.cpp:367] bn4a_branch2b -> res4a_branch2b (in-place)
-I0403 22:07:02.426089 21697 net.cpp:122] Setting up bn4a_branch2b
-I0403 22:07:02.426093 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.426097 21697 net.cpp:137] Memory required for data: 2536898560
-I0403 22:07:02.426105 21697 layer_factory.hpp:77] Creating layer scale4a_branch2b
-I0403 22:07:02.426116 21697 net.cpp:84] Creating Layer scale4a_branch2b
-I0403 22:07:02.426120 21697 net.cpp:406] scale4a_branch2b <- res4a_branch2b
-I0403 22:07:02.426126 21697 net.cpp:367] scale4a_branch2b -> res4a_branch2b (in-place)
-I0403 22:07:02.426142 21697 layer_factory.hpp:77] Creating layer scale4a_branch2b
-I0403 22:07:02.426164 21697 net.cpp:122] Setting up scale4a_branch2b
-I0403 22:07:02.426170 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.426174 21697 net.cpp:137] Memory required for data: 2540912640
-I0403 22:07:02.426179 21697 layer_factory.hpp:77] Creating layer res4a
-I0403 22:07:02.426204 21697 net.cpp:84] Creating Layer res4a
-I0403 22:07:02.426208 21697 net.cpp:406] res4a <- res4a_branch1
-I0403 22:07:02.426213 21697 net.cpp:406] res4a <- res4a_branch2b
-I0403 22:07:02.426218 21697 net.cpp:380] res4a -> res4a
-I0403 22:07:02.426226 21697 net.cpp:122] Setting up res4a
-I0403 22:07:02.426230 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.426234 21697 net.cpp:137] Memory required for data: 2544926720
-I0403 22:07:02.426237 21697 layer_factory.hpp:77] Creating layer res4a_relu
-I0403 22:07:02.426257 21697 net.cpp:84] Creating Layer res4a_relu
-I0403 22:07:02.426261 21697 net.cpp:406] res4a_relu <- res4a
-I0403 22:07:02.426283 21697 net.cpp:367] res4a_relu -> res4a (in-place)
-I0403 22:07:02.426348 21697 net.cpp:122] Setting up res4a_relu
-I0403 22:07:02.426354 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.426358 21697 net.cpp:137] Memory required for data: 2548940800
-I0403 22:07:02.426362 21697 layer_factory.hpp:77] Creating layer res4a_res4a_relu_0_split
-I0403 22:07:02.426368 21697 net.cpp:84] Creating Layer res4a_res4a_relu_0_split
-I0403 22:07:02.426372 21697 net.cpp:406] res4a_res4a_relu_0_split <- res4a
-I0403 22:07:02.426378 21697 net.cpp:380] res4a_res4a_relu_0_split -> res4a_res4a_relu_0_split_0
-I0403 22:07:02.426400 21697 net.cpp:380] res4a_res4a_relu_0_split -> res4a_res4a_relu_0_split_1
-I0403 22:07:02.426409 21697 net.cpp:122] Setting up res4a_res4a_relu_0_split
-I0403 22:07:02.426414 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.426419 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.426421 21697 net.cpp:137] Memory required for data: 2556968960
-I0403 22:07:02.426425 21697 layer_factory.hpp:77] Creating layer res4b_branch2a
-I0403 22:07:02.426434 21697 net.cpp:84] Creating Layer res4b_branch2a
-I0403 22:07:02.426436 21697 net.cpp:406] res4b_branch2a <- res4a_res4a_relu_0_split_0
-I0403 22:07:02.426445 21697 net.cpp:380] res4b_branch2a -> res4b_branch2a
-I0403 22:07:02.445360 21697 net.cpp:122] Setting up res4b_branch2a
-I0403 22:07:02.445394 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.445399 21697 net.cpp:137] Memory required for data: 2560983040
-I0403 22:07:02.445408 21697 layer_factory.hpp:77] Creating layer bn4b_branch2a
-I0403 22:07:02.445420 21697 net.cpp:84] Creating Layer bn4b_branch2a
-I0403 22:07:02.445425 21697 net.cpp:406] bn4b_branch2a <- res4b_branch2a
-I0403 22:07:02.445432 21697 net.cpp:367] bn4b_branch2a -> res4b_branch2a (in-place)
-I0403 22:07:02.445463 21697 net.cpp:122] Setting up bn4b_branch2a
-I0403 22:07:02.445477 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.445479 21697 net.cpp:137] Memory required for data: 2564997120
-I0403 22:07:02.445484 21697 layer_factory.hpp:77] Creating layer scale4b_branch2a
-I0403 22:07:02.445489 21697 net.cpp:84] Creating Layer scale4b_branch2a
-I0403 22:07:02.445492 21697 net.cpp:406] scale4b_branch2a <- res4b_branch2a
-I0403 22:07:02.445497 21697 net.cpp:367] scale4b_branch2a -> res4b_branch2a (in-place)
-I0403 22:07:02.445509 21697 layer_factory.hpp:77] Creating layer scale4b_branch2a
-I0403 22:07:02.445525 21697 net.cpp:122] Setting up scale4b_branch2a
-I0403 22:07:02.445530 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.445531 21697 net.cpp:137] Memory required for data: 2569011200
-I0403 22:07:02.445535 21697 layer_factory.hpp:77] Creating layer res4b_branch2a_relu
-I0403 22:07:02.445539 21697 net.cpp:84] Creating Layer res4b_branch2a_relu
-I0403 22:07:02.445543 21697 net.cpp:406] res4b_branch2a_relu <- res4b_branch2a
-I0403 22:07:02.445544 21697 net.cpp:367] res4b_branch2a_relu -> res4b_branch2a (in-place)
-I0403 22:07:02.445550 21697 net.cpp:122] Setting up res4b_branch2a_relu
-I0403 22:07:02.445554 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.445556 21697 net.cpp:137] Memory required for data: 2573025280
-I0403 22:07:02.445559 21697 layer_factory.hpp:77] Creating layer res4b_branch2b
-I0403 22:07:02.445562 21697 net.cpp:84] Creating Layer res4b_branch2b
-I0403 22:07:02.445564 21697 net.cpp:406] res4b_branch2b <- res4b_branch2a
-I0403 22:07:02.445569 21697 net.cpp:380] res4b_branch2b -> res4b_branch2b
-I0403 22:07:02.464817 21697 net.cpp:122] Setting up res4b_branch2b
-I0403 22:07:02.464855 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.464859 21697 net.cpp:137] Memory required for data: 2577039360
-I0403 22:07:02.464881 21697 layer_factory.hpp:77] Creating layer bn4b_branch2b
-I0403 22:07:02.464891 21697 net.cpp:84] Creating Layer bn4b_branch2b
-I0403 22:07:02.464895 21697 net.cpp:406] bn4b_branch2b <- res4b_branch2b
-I0403 22:07:02.464903 21697 net.cpp:367] bn4b_branch2b -> res4b_branch2b (in-place)
-I0403 22:07:02.464922 21697 net.cpp:122] Setting up bn4b_branch2b
-I0403 22:07:02.464926 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.464942 21697 net.cpp:137] Memory required for data: 2581053440
-I0403 22:07:02.464947 21697 layer_factory.hpp:77] Creating layer scale4b_branch2b
-I0403 22:07:02.464953 21697 net.cpp:84] Creating Layer scale4b_branch2b
-I0403 22:07:02.464956 21697 net.cpp:406] scale4b_branch2b <- res4b_branch2b
-I0403 22:07:02.464959 21697 net.cpp:367] scale4b_branch2b -> res4b_branch2b (in-place)
-I0403 22:07:02.464970 21697 layer_factory.hpp:77] Creating layer scale4b_branch2b
-I0403 22:07:02.464987 21697 net.cpp:122] Setting up scale4b_branch2b
-I0403 22:07:02.464992 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.464993 21697 net.cpp:137] Memory required for data: 2585067520
-I0403 22:07:02.464996 21697 layer_factory.hpp:77] Creating layer res4b
-I0403 22:07:02.465001 21697 net.cpp:84] Creating Layer res4b
-I0403 22:07:02.465003 21697 net.cpp:406] res4b <- res4a_res4a_relu_0_split_1
-I0403 22:07:02.465006 21697 net.cpp:406] res4b <- res4b_branch2b
-I0403 22:07:02.465011 21697 net.cpp:380] res4b -> res4b
-I0403 22:07:02.465018 21697 net.cpp:122] Setting up res4b
-I0403 22:07:02.465020 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.465023 21697 net.cpp:137] Memory required for data: 2589081600
-I0403 22:07:02.465024 21697 layer_factory.hpp:77] Creating layer res4b_relu
-I0403 22:07:02.465029 21697 net.cpp:84] Creating Layer res4b_relu
-I0403 22:07:02.465031 21697 net.cpp:406] res4b_relu <- res4b
-I0403 22:07:02.465034 21697 net.cpp:367] res4b_relu -> res4b (in-place)
-I0403 22:07:02.465039 21697 net.cpp:122] Setting up res4b_relu
-I0403 22:07:02.465042 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.465044 21697 net.cpp:137] Memory required for data: 2593095680
-I0403 22:07:02.465045 21697 layer_factory.hpp:77] Creating layer res4b_res4b_relu_0_split
-I0403 22:07:02.465049 21697 net.cpp:84] Creating Layer res4b_res4b_relu_0_split
-I0403 22:07:02.465052 21697 net.cpp:406] res4b_res4b_relu_0_split <- res4b
-I0403 22:07:02.465057 21697 net.cpp:380] res4b_res4b_relu_0_split -> res4b_res4b_relu_0_split_0
-I0403 22:07:02.465061 21697 net.cpp:380] res4b_res4b_relu_0_split -> res4b_res4b_relu_0_split_1
-I0403 22:07:02.465067 21697 net.cpp:122] Setting up res4b_res4b_relu_0_split
-I0403 22:07:02.465070 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.465073 21697 net.cpp:129] Top shape: 5 256 4 14 14 (1003520)
-I0403 22:07:02.465075 21697 net.cpp:137] Memory required for data: 2601123840
-I0403 22:07:02.465077 21697 layer_factory.hpp:77] Creating layer res5a_branch1
-I0403 22:07:02.465082 21697 net.cpp:84] Creating Layer res5a_branch1
-I0403 22:07:02.465085 21697 net.cpp:406] res5a_branch1 <- res4b_res4b_relu_0_split_0
-I0403 22:07:02.465087 21697 net.cpp:380] res5a_branch1 -> res5a_branch1
-I0403 22:07:02.466545 21697 net.cpp:122] Setting up res5a_branch1
-I0403 22:07:02.466586 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.466594 21697 net.cpp:137] Memory required for data: 2602127360
-I0403 22:07:02.466604 21697 layer_factory.hpp:77] Creating layer bn5a_branch1
-I0403 22:07:02.466616 21697 net.cpp:84] Creating Layer bn5a_branch1
-I0403 22:07:02.466622 21697 net.cpp:406] bn5a_branch1 <- res5a_branch1
-I0403 22:07:02.466630 21697 net.cpp:367] bn5a_branch1 -> res5a_branch1 (in-place)
-I0403 22:07:02.466650 21697 net.cpp:122] Setting up bn5a_branch1
-I0403 22:07:02.466653 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.466657 21697 net.cpp:137] Memory required for data: 2603130880
-I0403 22:07:02.466662 21697 layer_factory.hpp:77] Creating layer scale5a_branch1
-I0403 22:07:02.466670 21697 net.cpp:84] Creating Layer scale5a_branch1
-I0403 22:07:02.466673 21697 net.cpp:406] scale5a_branch1 <- res5a_branch1
-I0403 22:07:02.466681 21697 net.cpp:367] scale5a_branch1 -> res5a_branch1 (in-place)
-I0403 22:07:02.466694 21697 layer_factory.hpp:77] Creating layer scale5a_branch1
-I0403 22:07:02.466713 21697 net.cpp:122] Setting up scale5a_branch1
-I0403 22:07:02.466718 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.466742 21697 net.cpp:137] Memory required for data: 2604134400
-I0403 22:07:02.466748 21697 layer_factory.hpp:77] Creating layer res5a_branch2a
-I0403 22:07:02.466758 21697 net.cpp:84] Creating Layer res5a_branch2a
-I0403 22:07:02.466761 21697 net.cpp:406] res5a_branch2a <- res4b_res4b_relu_0_split_1
-I0403 22:07:02.466768 21697 net.cpp:380] res5a_branch2a -> res5a_branch2a
-I0403 22:07:02.507745 21697 net.cpp:122] Setting up res5a_branch2a
-I0403 22:07:02.507781 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.507787 21697 net.cpp:137] Memory required for data: 2605137920
-I0403 22:07:02.507799 21697 layer_factory.hpp:77] Creating layer bn5a_branch2a
-I0403 22:07:02.507817 21697 net.cpp:84] Creating Layer bn5a_branch2a
-I0403 22:07:02.507824 21697 net.cpp:406] bn5a_branch2a <- res5a_branch2a
-I0403 22:07:02.507832 21697 net.cpp:367] bn5a_branch2a -> res5a_branch2a (in-place)
-I0403 22:07:02.507877 21697 net.cpp:122] Setting up bn5a_branch2a
-I0403 22:07:02.507905 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.507910 21697 net.cpp:137] Memory required for data: 2606141440
-I0403 22:07:02.507918 21697 layer_factory.hpp:77] Creating layer scale5a_branch2a
-I0403 22:07:02.507928 21697 net.cpp:84] Creating Layer scale5a_branch2a
-I0403 22:07:02.507953 21697 net.cpp:406] scale5a_branch2a <- res5a_branch2a
-I0403 22:07:02.507962 21697 net.cpp:367] scale5a_branch2a -> res5a_branch2a (in-place)
-I0403 22:07:02.507985 21697 layer_factory.hpp:77] Creating layer scale5a_branch2a
-I0403 22:07:02.508038 21697 net.cpp:122] Setting up scale5a_branch2a
-I0403 22:07:02.508061 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.508066 21697 net.cpp:137] Memory required for data: 2607144960
-I0403 22:07:02.508074 21697 layer_factory.hpp:77] Creating layer res5a_branch2a_relu
-I0403 22:07:02.508082 21697 net.cpp:84] Creating Layer res5a_branch2a_relu
-I0403 22:07:02.508087 21697 net.cpp:406] res5a_branch2a_relu <- res5a_branch2a
-I0403 22:07:02.508092 21697 net.cpp:367] res5a_branch2a_relu -> res5a_branch2a (in-place)
-I0403 22:07:02.508098 21697 net.cpp:122] Setting up res5a_branch2a_relu
-I0403 22:07:02.508102 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.508106 21697 net.cpp:137] Memory required for data: 2608148480
-I0403 22:07:02.508110 21697 layer_factory.hpp:77] Creating layer res5a_branch2b
-I0403 22:07:02.508116 21697 net.cpp:84] Creating Layer res5a_branch2b
-I0403 22:07:02.508119 21697 net.cpp:406] res5a_branch2b <- res5a_branch2a
-I0403 22:07:02.508126 21697 net.cpp:380] res5a_branch2b -> res5a_branch2b
-I0403 22:07:02.577172 21697 net.cpp:122] Setting up res5a_branch2b
-I0403 22:07:02.577200 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.577204 21697 net.cpp:137] Memory required for data: 2609152000
-I0403 22:07:02.577214 21697 layer_factory.hpp:77] Creating layer bn5a_branch2b
-I0403 22:07:02.577232 21697 net.cpp:84] Creating Layer bn5a_branch2b
-I0403 22:07:02.577237 21697 net.cpp:406] bn5a_branch2b <- res5a_branch2b
-I0403 22:07:02.577242 21697 net.cpp:367] bn5a_branch2b -> res5a_branch2b (in-place)
-I0403 22:07:02.577260 21697 net.cpp:122] Setting up bn5a_branch2b
-I0403 22:07:02.577263 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.577265 21697 net.cpp:137] Memory required for data: 2610155520
-I0403 22:07:02.577270 21697 layer_factory.hpp:77] Creating layer scale5a_branch2b
-I0403 22:07:02.577275 21697 net.cpp:84] Creating Layer scale5a_branch2b
-I0403 22:07:02.577277 21697 net.cpp:406] scale5a_branch2b <- res5a_branch2b
-I0403 22:07:02.577281 21697 net.cpp:367] scale5a_branch2b -> res5a_branch2b (in-place)
-I0403 22:07:02.577292 21697 layer_factory.hpp:77] Creating layer scale5a_branch2b
-I0403 22:07:02.577319 21697 net.cpp:122] Setting up scale5a_branch2b
-I0403 22:07:02.577323 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.577325 21697 net.cpp:137] Memory required for data: 2611159040
-I0403 22:07:02.577328 21697 layer_factory.hpp:77] Creating layer res5a
-I0403 22:07:02.577333 21697 net.cpp:84] Creating Layer res5a
-I0403 22:07:02.577356 21697 net.cpp:406] res5a <- res5a_branch1
-I0403 22:07:02.577359 21697 net.cpp:406] res5a <- res5a_branch2b
-I0403 22:07:02.577363 21697 net.cpp:380] res5a -> res5a
-I0403 22:07:02.577369 21697 net.cpp:122] Setting up res5a
-I0403 22:07:02.577373 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.577374 21697 net.cpp:137] Memory required for data: 2612162560
-I0403 22:07:02.577376 21697 layer_factory.hpp:77] Creating layer res5a_relu
-I0403 22:07:02.577380 21697 net.cpp:84] Creating Layer res5a_relu
-I0403 22:07:02.577383 21697 net.cpp:406] res5a_relu <- res5a
-I0403 22:07:02.577385 21697 net.cpp:367] res5a_relu -> res5a (in-place)
-I0403 22:07:02.577389 21697 net.cpp:122] Setting up res5a_relu
-I0403 22:07:02.577392 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.577394 21697 net.cpp:137] Memory required for data: 2613166080
-I0403 22:07:02.577396 21697 layer_factory.hpp:77] Creating layer res5a_res5a_relu_0_split
-I0403 22:07:02.577401 21697 net.cpp:84] Creating Layer res5a_res5a_relu_0_split
-I0403 22:07:02.577404 21697 net.cpp:406] res5a_res5a_relu_0_split <- res5a
-I0403 22:07:02.577407 21697 net.cpp:380] res5a_res5a_relu_0_split -> res5a_res5a_relu_0_split_0
-I0403 22:07:02.577412 21697 net.cpp:380] res5a_res5a_relu_0_split -> res5a_res5a_relu_0_split_1
-I0403 22:07:02.577417 21697 net.cpp:122] Setting up res5a_res5a_relu_0_split
-I0403 22:07:02.577421 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.577424 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.577425 21697 net.cpp:137] Memory required for data: 2615173120
-I0403 22:07:02.577427 21697 layer_factory.hpp:77] Creating layer res5b_branch2a
-I0403 22:07:02.577432 21697 net.cpp:84] Creating Layer res5b_branch2a
-I0403 22:07:02.577435 21697 net.cpp:406] res5b_branch2a <- res5a_res5a_relu_0_split_0
-I0403 22:07:02.577440 21697 net.cpp:380] res5b_branch2a -> res5b_branch2a
-I0403 22:07:02.643548 21697 net.cpp:122] Setting up res5b_branch2a
-I0403 22:07:02.643597 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.643600 21697 net.cpp:137] Memory required for data: 2616176640
-I0403 22:07:02.643610 21697 layer_factory.hpp:77] Creating layer bn5b_branch2a
-I0403 22:07:02.643618 21697 net.cpp:84] Creating Layer bn5b_branch2a
-I0403 22:07:02.643623 21697 net.cpp:406] bn5b_branch2a <- res5b_branch2a
-I0403 22:07:02.643630 21697 net.cpp:367] bn5b_branch2a -> res5b_branch2a (in-place)
-I0403 22:07:02.643648 21697 net.cpp:122] Setting up bn5b_branch2a
-I0403 22:07:02.643652 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.643654 21697 net.cpp:137] Memory required for data: 2617180160
-I0403 22:07:02.643659 21697 layer_factory.hpp:77] Creating layer scale5b_branch2a
-I0403 22:07:02.643679 21697 net.cpp:84] Creating Layer scale5b_branch2a
-I0403 22:07:02.643682 21697 net.cpp:406] scale5b_branch2a <- res5b_branch2a
-I0403 22:07:02.643685 21697 net.cpp:367] scale5b_branch2a -> res5b_branch2a (in-place)
-I0403 22:07:02.643694 21697 layer_factory.hpp:77] Creating layer scale5b_branch2a
-I0403 22:07:02.643708 21697 net.cpp:122] Setting up scale5b_branch2a
-I0403 22:07:02.643712 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.643714 21697 net.cpp:137] Memory required for data: 2618183680
-I0403 22:07:02.643718 21697 layer_factory.hpp:77] Creating layer res5b_branch2a_relu
-I0403 22:07:02.643723 21697 net.cpp:84] Creating Layer res5b_branch2a_relu
-I0403 22:07:02.643724 21697 net.cpp:406] res5b_branch2a_relu <- res5b_branch2a
-I0403 22:07:02.643728 21697 net.cpp:367] res5b_branch2a_relu -> res5b_branch2a (in-place)
-I0403 22:07:02.643731 21697 net.cpp:122] Setting up res5b_branch2a_relu
-I0403 22:07:02.643734 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.643736 21697 net.cpp:137] Memory required for data: 2619187200
-I0403 22:07:02.643739 21697 layer_factory.hpp:77] Creating layer res5b_branch2b
-I0403 22:07:02.643743 21697 net.cpp:84] Creating Layer res5b_branch2b
-I0403 22:07:02.643745 21697 net.cpp:406] res5b_branch2b <- res5b_branch2a
-I0403 22:07:02.643757 21697 net.cpp:380] res5b_branch2b -> res5b_branch2b
-I0403 22:07:02.713132 21697 net.cpp:122] Setting up res5b_branch2b
-I0403 22:07:02.713181 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.713193 21697 net.cpp:137] Memory required for data: 2620190720
-I0403 22:07:02.713202 21697 layer_factory.hpp:77] Creating layer bn5b_branch2b
-I0403 22:07:02.713213 21697 net.cpp:84] Creating Layer bn5b_branch2b
-I0403 22:07:02.713217 21697 net.cpp:406] bn5b_branch2b <- res5b_branch2b
-I0403 22:07:02.713225 21697 net.cpp:367] bn5b_branch2b -> res5b_branch2b (in-place)
-I0403 22:07:02.713255 21697 net.cpp:122] Setting up bn5b_branch2b
-I0403 22:07:02.713259 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.713261 21697 net.cpp:137] Memory required for data: 2621194240
-I0403 22:07:02.713266 21697 layer_factory.hpp:77] Creating layer scale5b_branch2b
-I0403 22:07:02.713271 21697 net.cpp:84] Creating Layer scale5b_branch2b
-I0403 22:07:02.713274 21697 net.cpp:406] scale5b_branch2b <- res5b_branch2b
-I0403 22:07:02.713279 21697 net.cpp:367] scale5b_branch2b -> res5b_branch2b (in-place)
-I0403 22:07:02.713289 21697 layer_factory.hpp:77] Creating layer scale5b_branch2b
-I0403 22:07:02.713304 21697 net.cpp:122] Setting up scale5b_branch2b
-I0403 22:07:02.713321 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.713323 21697 net.cpp:137] Memory required for data: 2622197760
-I0403 22:07:02.713326 21697 layer_factory.hpp:77] Creating layer res5b
-I0403 22:07:02.713331 21697 net.cpp:84] Creating Layer res5b
-I0403 22:07:02.713333 21697 net.cpp:406] res5b <- res5a_res5a_relu_0_split_1
-I0403 22:07:02.713336 21697 net.cpp:406] res5b <- res5b_branch2b
-I0403 22:07:02.713340 21697 net.cpp:380] res5b -> res5b
-I0403 22:07:02.713346 21697 net.cpp:122] Setting up res5b
-I0403 22:07:02.713349 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.713351 21697 net.cpp:137] Memory required for data: 2623201280
-I0403 22:07:02.713353 21697 layer_factory.hpp:77] Creating layer res5b_relu
-I0403 22:07:02.713357 21697 net.cpp:84] Creating Layer res5b_relu
-I0403 22:07:02.713361 21697 net.cpp:406] res5b_relu <- res5b
-I0403 22:07:02.713363 21697 net.cpp:367] res5b_relu -> res5b (in-place)
-I0403 22:07:02.713368 21697 net.cpp:122] Setting up res5b_relu
-I0403 22:07:02.713371 21697 net.cpp:129] Top shape: 5 512 2 7 7 (250880)
-I0403 22:07:02.713373 21697 net.cpp:137] Memory required for data: 2624204800
-I0403 22:07:02.713376 21697 layer_factory.hpp:77] Creating layer pool5
-I0403 22:07:02.713379 21697 net.cpp:84] Creating Layer pool5
-I0403 22:07:02.713382 21697 net.cpp:406] pool5 <- res5b
-I0403 22:07:02.713385 21697 net.cpp:380] pool5 -> pool5
-I0403 22:07:02.713398 21697 net.cpp:122] Setting up pool5
-I0403 22:07:02.713402 21697 net.cpp:129] Top shape: 5 512 2 1 1 (5120)
-I0403 22:07:02.713403 21697 net.cpp:137] Memory required for data: 2624225280
-I0403 22:07:02.713405 21697 layer_factory.hpp:77] Creating layer fc8-new
-I0403 22:07:02.713410 21697 net.cpp:84] Creating Layer fc8-new
-I0403 22:07:02.713413 21697 net.cpp:406] fc8-new <- pool5
-I0403 22:07:02.713418 21697 net.cpp:380] fc8-new -> fc8-new
-I0403 22:07:02.715590 21697 net.cpp:122] Setting up fc8-new
-I0403 22:07:02.715613 21697 net.cpp:129] Top shape: 5 101 (505)
-I0403 22:07:02.715616 21697 net.cpp:137] Memory required for data: 2624227300
-I0403 22:07:02.715622 21697 layer_factory.hpp:77] Creating layer fc8-new_fc8-new_0_split
-I0403 22:07:02.715628 21697 net.cpp:84] Creating Layer fc8-new_fc8-new_0_split
-I0403 22:07:02.715632 21697 net.cpp:406] fc8-new_fc8-new_0_split <- fc8-new
-I0403 22:07:02.715638 21697 net.cpp:380] fc8-new_fc8-new_0_split -> fc8-new_fc8-new_0_split_0
-I0403 22:07:02.715644 21697 net.cpp:380] fc8-new_fc8-new_0_split -> fc8-new_fc8-new_0_split_1
-I0403 22:07:02.715651 21697 net.cpp:380] fc8-new_fc8-new_0_split -> fc8-new_fc8-new_0_split_2
-I0403 22:07:02.715656 21697 net.cpp:122] Setting up fc8-new_fc8-new_0_split
-I0403 22:07:02.715658 21697 net.cpp:129] Top shape: 5 101 (505)
-I0403 22:07:02.715662 21697 net.cpp:129] Top shape: 5 101 (505)
-I0403 22:07:02.715663 21697 net.cpp:129] Top shape: 5 101 (505)
-I0403 22:07:02.715677 21697 net.cpp:137] Memory required for data: 2624233360
-I0403 22:07:02.715680 21697 layer_factory.hpp:77] Creating layer silence
-I0403 22:07:02.715720 21697 net.cpp:84] Creating Layer silence
-I0403 22:07:02.715728 21697 net.cpp:406] silence <- positive
-I0403 22:07:02.715752 21697 net.cpp:406] silence <- negative
-I0403 22:07:02.715757 21697 net.cpp:122] Setting up silence
-I0403 22:07:02.715759 21697 net.cpp:137] Memory required for data: 2624233360
-I0403 22:07:02.715764 21697 layer_factory.hpp:77] Creating layer loss
-I0403 22:07:02.715790 21697 net.cpp:84] Creating Layer loss
-I0403 22:07:02.715793 21697 net.cpp:406] loss <- fc8-new_fc8-new_0_split_0
-I0403 22:07:02.715796 21697 net.cpp:406] loss <- fc8-new_fc8-new_0_split_1
-I0403 22:07:02.715801 21697 net.cpp:406] loss <- fc8-new_fc8-new_0_split_2
-I0403 22:07:02.715806 21697 net.cpp:380] loss -> loss
-I0403 22:07:02.715821 21697 net.cpp:122] Setting up loss
-I0403 22:07:02.715831 21697 net.cpp:129] Top shape: (1)
-I0403 22:07:02.715833 21697 net.cpp:132]     with loss weight 1
-I0403 22:07:02.715860 21697 net.cpp:137] Memory required for data: 2624233364
-I0403 22:07:02.715878 21697 net.cpp:198] loss needs backward computation.
-I0403 22:07:02.715881 21697 net.cpp:200] silence does not need backward computation.
-I0403 22:07:02.715884 21697 net.cpp:198] fc8-new_fc8-new_0_split needs backward computation.
-I0403 22:07:02.715888 21697 net.cpp:198] fc8-new needs backward computation.
-I0403 22:07:02.715893 21697 net.cpp:198] pool5 needs backward computation.
-I0403 22:07:02.715895 21697 net.cpp:198] res5b_relu needs backward computation.
-I0403 22:07:02.715899 21697 net.cpp:198] res5b needs backward computation.
-I0403 22:07:02.715904 21697 net.cpp:198] scale5b_branch2b needs backward computation.
-I0403 22:07:02.715909 21697 net.cpp:198] bn5b_branch2b needs backward computation.
-I0403 22:07:02.715911 21697 net.cpp:198] res5b_branch2b needs backward computation.
-I0403 22:07:02.715915 21697 net.cpp:198] res5b_branch2a_relu needs backward computation.
-I0403 22:07:02.715919 21697 net.cpp:198] scale5b_branch2a needs backward computation.
-I0403 22:07:02.715924 21697 net.cpp:198] bn5b_branch2a needs backward computation.
-I0403 22:07:02.715926 21697 net.cpp:198] res5b_branch2a needs backward computation.
-I0403 22:07:02.715930 21697 net.cpp:198] res5a_res5a_relu_0_split needs backward computation.
-I0403 22:07:02.715935 21697 net.cpp:198] res5a_relu needs backward computation.
-I0403 22:07:02.715939 21697 net.cpp:198] res5a needs backward computation.
-I0403 22:07:02.715943 21697 net.cpp:198] scale5a_branch2b needs backward computation.
-I0403 22:07:02.715951 21697 net.cpp:198] bn5a_branch2b needs backward computation.
-I0403 22:07:02.715955 21697 net.cpp:198] res5a_branch2b needs backward computation.
-I0403 22:07:02.715960 21697 net.cpp:198] res5a_branch2a_relu needs backward computation.
-I0403 22:07:02.715962 21697 net.cpp:198] scale5a_branch2a needs backward computation.
-I0403 22:07:02.715966 21697 net.cpp:198] bn5a_branch2a needs backward computation.
-I0403 22:07:02.715970 21697 net.cpp:198] res5a_branch2a needs backward computation.
-I0403 22:07:02.715975 21697 net.cpp:198] scale5a_branch1 needs backward computation.
-I0403 22:07:02.715978 21697 net.cpp:198] bn5a_branch1 needs backward computation.
-I0403 22:07:02.715981 21697 net.cpp:198] res5a_branch1 needs backward computation.
-I0403 22:07:02.715986 21697 net.cpp:198] res4b_res4b_relu_0_split needs backward computation.
-I0403 22:07:02.715989 21697 net.cpp:198] res4b_relu needs backward computation.
-I0403 22:07:02.715993 21697 net.cpp:198] res4b needs backward computation.
-I0403 22:07:02.715997 21697 net.cpp:198] scale4b_branch2b needs backward computation.
-I0403 22:07:02.716002 21697 net.cpp:198] bn4b_branch2b needs backward computation.
-I0403 22:07:02.716006 21697 net.cpp:198] res4b_branch2b needs backward computation.
-I0403 22:07:02.716009 21697 net.cpp:198] res4b_branch2a_relu needs backward computation.
-I0403 22:07:02.716013 21697 net.cpp:198] scale4b_branch2a needs backward computation.
-I0403 22:07:02.716032 21697 net.cpp:198] bn4b_branch2a needs backward computation.
-I0403 22:07:02.716034 21697 net.cpp:198] res4b_branch2a needs backward computation.
-I0403 22:07:02.716039 21697 net.cpp:198] res4a_res4a_relu_0_split needs backward computation.
-I0403 22:07:02.716042 21697 net.cpp:198] res4a_relu needs backward computation.
-I0403 22:07:02.716047 21697 net.cpp:198] res4a needs backward computation.
-I0403 22:07:02.716051 21697 net.cpp:198] scale4a_branch2b needs backward computation.
-I0403 22:07:02.716055 21697 net.cpp:198] bn4a_branch2b needs backward computation.
-I0403 22:07:02.716058 21697 net.cpp:198] res4a_branch2b needs backward computation.
-I0403 22:07:02.716063 21697 net.cpp:198] res4a_branch2a_relu needs backward computation.
-I0403 22:07:02.716068 21697 net.cpp:198] scale4a_branch2a needs backward computation.
-I0403 22:07:02.716070 21697 net.cpp:198] bn4a_branch2a needs backward computation.
-I0403 22:07:02.716073 21697 net.cpp:198] res4a_branch2a needs backward computation.
-I0403 22:07:02.716078 21697 net.cpp:198] scale4a_branch1 needs backward computation.
-I0403 22:07:02.716083 21697 net.cpp:198] bn4a_branch1 needs backward computation.
-I0403 22:07:02.716086 21697 net.cpp:198] res4a_branch1 needs backward computation.
-I0403 22:07:02.716092 21697 net.cpp:198] res3b_res3b_relu_0_split needs backward computation.
-I0403 22:07:02.716101 21697 net.cpp:198] res3b_relu needs backward computation.
-I0403 22:07:02.716105 21697 net.cpp:198] res3b needs backward computation.
-I0403 22:07:02.716109 21697 net.cpp:198] scale3b_branch2b needs backward computation.
-I0403 22:07:02.716112 21697 net.cpp:198] bn3b_branch2b needs backward computation.
-I0403 22:07:02.716116 21697 net.cpp:198] res3b_branch2b needs backward computation.
-I0403 22:07:02.716120 21697 net.cpp:198] res3b_branch2a_relu needs backward computation.
-I0403 22:07:02.716122 21697 net.cpp:198] scale3b_branch2a needs backward computation.
-I0403 22:07:02.716125 21697 net.cpp:198] bn3b_branch2a needs backward computation.
-I0403 22:07:02.716130 21697 net.cpp:198] res3b_branch2a needs backward computation.
-I0403 22:07:02.716132 21697 net.cpp:198] res3a_res3a_relu_0_split needs backward computation.
-I0403 22:07:02.716135 21697 net.cpp:198] res3a_relu needs backward computation.
-I0403 22:07:02.716140 21697 net.cpp:198] res3a needs backward computation.
-I0403 22:07:02.716145 21697 net.cpp:198] scale3a_branch2b needs backward computation.
-I0403 22:07:02.716148 21697 net.cpp:198] bn3a_branch2b needs backward computation.
-I0403 22:07:02.716151 21697 net.cpp:198] res3a_branch2b needs backward computation.
-I0403 22:07:02.716156 21697 net.cpp:198] res3a_branch2a_relu needs backward computation.
-I0403 22:07:02.716159 21697 net.cpp:198] scale3a_branch2a needs backward computation.
-I0403 22:07:02.716162 21697 net.cpp:198] bn3a_branch2a needs backward computation.
-I0403 22:07:02.716166 21697 net.cpp:198] res3a_branch2a needs backward computation.
-I0403 22:07:02.716171 21697 net.cpp:198] scale3a_branch1 needs backward computation.
-I0403 22:07:02.716174 21697 net.cpp:198] bn3a_branch1 needs backward computation.
-I0403 22:07:02.716177 21697 net.cpp:198] res3a_branch1 needs backward computation.
-I0403 22:07:02.716181 21697 net.cpp:198] res2b_res2b_relu_0_split needs backward computation.
-I0403 22:07:02.716198 21697 net.cpp:198] res2b_relu needs backward computation.
-I0403 22:07:02.716207 21697 net.cpp:198] res2b needs backward computation.
-I0403 22:07:02.716213 21697 net.cpp:198] scale2b_branch2b needs backward computation.
-I0403 22:07:02.716217 21697 net.cpp:198] bn2b_branch2b needs backward computation.
-I0403 22:07:02.716220 21697 net.cpp:198] res2b_branch2b needs backward computation.
-I0403 22:07:02.716224 21697 net.cpp:198] res2b_branch2a_relu needs backward computation.
-I0403 22:07:02.716228 21697 net.cpp:198] scale2b_branch2a needs backward computation.
-I0403 22:07:02.716231 21697 net.cpp:198] bn2b_branch2a needs backward computation.
-I0403 22:07:02.716235 21697 net.cpp:198] res2b_branch2a needs backward computation.
-I0403 22:07:02.716240 21697 net.cpp:198] res2a_res2a_relu_0_split needs backward computation.
-I0403 22:07:02.716254 21697 net.cpp:198] res2a_relu needs backward computation.
-I0403 22:07:02.716260 21697 net.cpp:198] res2a needs backward computation.
-I0403 22:07:02.716265 21697 net.cpp:198] scale2a_branch2b needs backward computation.
-I0403 22:07:02.716270 21697 net.cpp:198] bn2a_branch2b needs backward computation.
-I0403 22:07:02.716274 21697 net.cpp:198] res2a_branch2b needs backward computation.
-I0403 22:07:02.716277 21697 net.cpp:198] res2a_branch2a_relu needs backward computation.
-I0403 22:07:02.716281 21697 net.cpp:198] scale2a_branch2a needs backward computation.
-I0403 22:07:02.716285 21697 net.cpp:198] bn2a_branch2a needs backward computation.
-I0403 22:07:02.716289 21697 net.cpp:198] res2a_branch2a needs backward computation.
-I0403 22:07:02.716294 21697 net.cpp:198] scale2a_branch1 needs backward computation.
-I0403 22:07:02.716296 21697 net.cpp:198] bn2a_branch1 needs backward computation.
-I0403 22:07:02.716300 21697 net.cpp:198] res2a_branch1 needs backward computation.
-I0403 22:07:02.716306 21697 net.cpp:198] conv1_conv1_relu_0_split needs backward computation.
-I0403 22:07:02.716310 21697 net.cpp:198] conv1_relu needs backward computation.
-I0403 22:07:02.716313 21697 net.cpp:198] scale_conv1 needs backward computation.
-I0403 22:07:02.716318 21697 net.cpp:198] bn_conv1 needs backward computation.
-I0403 22:07:02.716321 21697 net.cpp:198] conv1 needs backward computation.
-I0403 22:07:02.716325 21697 net.cpp:200] reshape_negative does not need backward computation.
-I0403 22:07:02.716331 21697 net.cpp:200] reshape_positive does not need backward computation.
-I0403 22:07:02.716334 21697 net.cpp:200] reshape_anchor does not need backward computation.
-I0403 22:07:02.716339 21697 net.cpp:200] slicer does not need backward computation.
-I0403 22:07:02.716344 21697 net.cpp:200] data does not need backward computation.
-I0403 22:07:02.716347 21697 net.cpp:242] This network produces output loss
-I0403 22:07:02.716433 21697 net.cpp:255] Network initialization done.
-I0403 22:07:02.716861 21697 solver.cpp:56] Solver scaffolding done.
-I0403 22:07:02.717206 21697 caffe.cpp:155] Finetuning from ../c3d_resnet18_sports1m_r2_iter_2800000.caffemodel
-I0403 22:07:02.781859 21697 upgrade_proto.cpp:77] Attempting to upgrade batch norm layers using deprecated params: ../c3d_resnet18_sports1m_r2_iter_2800000.caffemodel
-I0403 22:07:02.781925 21697 upgrade_proto.cpp:80] Successfully upgraded batch norm layers using deprecated params.
-I0403 22:07:02.803905 21697 net.cpp:744] Ignoring source layer fc8
-I0403 22:07:02.805171 21697 caffe.cpp:248] Starting Optimization
-I0403 22:07:02.805197 21697 solver.cpp:273] Solving C3D-Mini
-I0403 22:07:02.805202 21697 solver.cpp:274] Learning Rate Policy: step
+I0404 09:46:45.644971 28191 layer_factory.hpp:77] Creating layer data
+I0404 09:46:45.645716 28191 net.cpp:100] Creating Layer data
+I0404 09:46:45.645736 28191 net.cpp:408] data -> triplet
+I0404 09:46:45.659735 28194 db_lmdb.cpp:35] Opened lmdb /home/lferrer/Documents/LMDB_MINI/train
+I0404 09:46:45.672719 28191 data_layer.cpp:41] output data size: 5,144,112,112
+I0404 09:46:45.673049 28191 net.cpp:150] Setting up data
+I0404 09:46:45.673091 28191 net.cpp:157] Top shape: 5 144 112 112 (9031680)
+I0404 09:46:45.673095 28191 net.cpp:165] Memory required for data: 36126720
+I0404 09:46:45.673110 28191 layer_factory.hpp:77] Creating layer slicer
+I0404 09:46:45.673123 28191 net.cpp:100] Creating Layer slicer
+I0404 09:46:45.673128 28191 net.cpp:434] slicer <- triplet
+I0404 09:46:45.673140 28191 net.cpp:408] slicer -> anchor_stacked
+I0404 09:46:45.673149 28191 net.cpp:408] slicer -> positive_stacked
+I0404 09:46:45.673161 28191 net.cpp:408] slicer -> negative_stacked
+I0404 09:46:45.673169 28191 net.cpp:150] Setting up slicer
+I0404 09:46:45.673172 28191 net.cpp:157] Top shape: 5 48 112 112 (3010560)
+I0404 09:46:45.673176 28191 net.cpp:157] Top shape: 5 48 112 112 (3010560)
+I0404 09:46:45.673178 28191 net.cpp:157] Top shape: 5 48 112 112 (3010560)
+I0404 09:46:45.673180 28191 net.cpp:165] Memory required for data: 72253440
+I0404 09:46:45.673182 28191 layer_factory.hpp:77] Creating layer reshape_anchor
+I0404 09:46:45.673192 28191 net.cpp:100] Creating Layer reshape_anchor
+I0404 09:46:45.673193 28191 net.cpp:434] reshape_anchor <- anchor_stacked
+I0404 09:46:45.673203 28191 net.cpp:408] reshape_anchor -> anchor
+I0404 09:46:45.673218 28191 net.cpp:150] Setting up reshape_anchor
+I0404 09:46:45.673221 28191 net.cpp:157] Top shape: 5 3 16 112 112 (3010560)
+I0404 09:46:45.673223 28191 net.cpp:165] Memory required for data: 84295680
+I0404 09:46:45.673240 28191 layer_factory.hpp:77] Creating layer reshape_positive
+I0404 09:46:45.673246 28191 net.cpp:100] Creating Layer reshape_positive
+I0404 09:46:45.673249 28191 net.cpp:434] reshape_positive <- positive_stacked
+I0404 09:46:45.673252 28191 net.cpp:408] reshape_positive -> positive
+I0404 09:46:45.673259 28191 net.cpp:150] Setting up reshape_positive
+I0404 09:46:45.673261 28191 net.cpp:157] Top shape: 5 3 16 112 112 (3010560)
+I0404 09:46:45.673264 28191 net.cpp:165] Memory required for data: 96337920
+I0404 09:46:45.673265 28191 layer_factory.hpp:77] Creating layer reshape_negative
+I0404 09:46:45.673269 28191 net.cpp:100] Creating Layer reshape_negative
+I0404 09:46:45.673272 28191 net.cpp:434] reshape_negative <- negative_stacked
+I0404 09:46:45.673275 28191 net.cpp:408] reshape_negative -> negative
+I0404 09:46:45.673280 28191 net.cpp:150] Setting up reshape_negative
+I0404 09:46:45.673283 28191 net.cpp:157] Top shape: 5 3 16 112 112 (3010560)
+I0404 09:46:45.673285 28191 net.cpp:165] Memory required for data: 108380160
+I0404 09:46:45.673286 28191 layer_factory.hpp:77] Creating layer conv1a
+F0404 09:46:45.673312 28191 layer_factory.hpp:81] Check failed: registry.count(type) == 1 (0 vs. 1) Unknown layer type: NdConvolution (known types: AbsVal, Accuracy, ArgMax, BNLL, BatchNorm, BatchReindex, Bias, Concat, ContrastiveLoss, Convolution, Crop, Data, Deconvolution, Dropout, DummyData, ELU, Eltwise, Embed, EuclideanLoss, Exp, Filter, Flatten, HDF5Data, HDF5Output, HingeLoss, Im2col, ImageData, InfogainLoss, InnerProduct, Input, LRN, LSTM, LSTMUnit, Log, MVN, MemoryData, MultinomialLogisticLoss, PReLU, Parameter, Pooling, Power, Python, RNN, ReLU, Reduction, Reshape, SPP, Scale, Sigmoid, SigmoidCrossEntropyLoss, Silence, Slice, Softmax, SoftmaxWithLoss, Split, TanH, Threshold, Tile, TripletLoss, VideoData, WindowData)
+*** Check failure stack trace: ***
+    @     0x7f1c834a85cd  google::LogMessage::Fail()
+    @     0x7f1c834aa433  google::LogMessage::SendToLog()
+    @     0x7f1c834a815b  google::LogMessage::Flush()
+    @     0x7f1c834aae1e  google::LogMessageFatal::~LogMessageFatal()
+    @     0x7f1c83a1322b  caffe::LayerRegistry<>::CreateLayer()
+    @     0x7f1c83a17c6c  caffe::Net<>::Init()
+    @     0x7f1c83a195d1  caffe::Net<>::Net()
+    @     0x7f1c83a224aa  caffe::Solver<>::InitTrainNet()
+I0404 09:46:45.684643 28195 blocking_queue.cpp:50] Waiting for data
+    @     0x7f1c83a238b7  caffe::Solver<>::Init()
+    @     0x7f1c83a23c5a  caffe::Solver<>::Solver()
+    @     0x7f1c83a4fff3  caffe::Creator_SGDSolver<>()
+    @           0x40bd1a  train()
+    @           0x408618  main
+    @     0x7f1c81c21830  __libc_start_main
+    @           0x408ee9  _start
+    @              (nil)  (unknown)
