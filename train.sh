@@ -1,6 +1,5 @@
 #!/usr/bin/env sh
-./C3D-v1.1/build/tools/caffe \
-train \
---solver=solver.prototxt \
---weights=../c3d_resnet18_sports1m_r2_iter_2800000.caffemodel \
+./C3D-v1.0/build/tools/finetune_net.bin \
+solver.prototxt \
+../conv3d_deepnetA_sport1m_iter_1900000 \
 2>&1 | tee mini_test.log
