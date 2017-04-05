@@ -157,7 +157,7 @@ layer {
   data_param {
     source: "/data/leo-data/Synthetic/LMDB/train"
     backend: LMDB
-    batch_size: 5
+    batch_size: 18
   }
 }
 layer {
@@ -778,10 +778,10 @@ layer {
   top: "conv1a_pos"
 }
 layer {
-  name: "pool1"
+  name: "pool1_pos"
   type: "NdPooling"
   bottom: "conv1a_pos"
-  top: "pool1"
+  top: "pool1_pos"
   pooling_param {
     pool: MAX
     kernel_shape { dim: 1 dim: 2 dim: 2 }
@@ -793,7 +793,7 @@ layer {
 layer {
   name: "conv2a_pos"
   type: "NdConvolution"
-  bottom: "pool1"
+  bottom: "pool1_pos"
   top: "conv2a_pos"
   param {
     name: "conv2a_w"
@@ -827,10 +827,10 @@ layer {
   top: "conv2a_pos"
 }
 layer {
-  name: "pool2"
+  name: "pool2_pos"
   type: "NdPooling"
   bottom: "conv2a_pos"
-  top: "pool2"
+  top: "pool2_pos"
   pooling_param {
     pool: MAX
     kernel_shape { dim: 2 dim: 2 dim: 2 }
@@ -842,7 +842,7 @@ layer {
 layer {
   name: "conv3a_pos"
   type: "NdConvolution"
-  bottom: "pool2"
+  bottom: "pool2_pos"
   top: "conv3a_pos"
   param {
     name: "conv3a_w"
@@ -876,10 +876,10 @@ layer {
   top: "conv3a_pos"
 }
 layer {
-  name: "pool3"
+  name: "pool3_pos"
   type: "NdPooling"
   bottom: "conv3a_pos"
-  top: "pool3"
+  top: "pool3_pos"
   pooling_param {
     pool: MAX
     kernel_shape { dim: 2 dim: 2 dim: 2 }
@@ -891,7 +891,7 @@ layer {
 layer {
   name: "conv4a_pos"
   type: "NdConvolution"
-  bottom: "pool3"
+  bottom: "pool3_pos"
   top: "conv4a_pos"
   param {
     name: "conv4a_w"
@@ -925,10 +925,10 @@ layer {
   top: "conv4a_pos"
 }
 layer {
-  name: "pool4"
+  name: "pool4_pos"
   type: "NdPooling"
   bottom: "conv4a_pos"
-  top: "pool4"
+  top: "pool4_pos"
   pooling_param {
     pool: MAX
     kernel_shape { dim: 2 dim: 2 dim: 2 }
@@ -940,7 +940,7 @@ layer {
 layer {
   name: "conv5a_pos"
   type: "NdConvolution"
-  bottom: "pool4"
+  bottom: "pool4_pos"
   top: "conv5a_pos"
   param {
     name: "conv5a_w"
@@ -1133,10 +1133,10 @@ layer {
   top: "conv1a_neg"
 }
 layer {
-  name: "pool1"
+  name: "pool1_neg"
   type: "NdPooling"
   bottom: "conv1a_neg"
-  top: "pool1"
+  top: "pool1_neg"
   pooling_param {
     pool: MAX
     kernel_shape { dim: 1 dim: 2 dim: 2 }
@@ -1148,7 +1148,7 @@ layer {
 layer {
   name: "conv2a_neg"
   type: "NdConvolution"
-  bottom: "pool1"
+  bottom: "pool1_neg"
   top: "conv2a_neg"
   param {
     name: "conv2a_w"
@@ -1182,10 +1182,10 @@ layer {
   top: "conv2a_neg"
 }
 layer {
-  name: "pool2"
+  name: "pool2_neg"
   type: "NdPooling"
   bottom: "conv2a_neg"
-  top: "pool2"
+  top: "pool2_neg"
   pooling_param {
     pool: MAX
     kernel_shape { dim: 2 dim: 2 dim: 2 }
@@ -1197,7 +1197,7 @@ layer {
 layer {
   name: "conv3a_neg"
   type: "NdConvolution"
-  bottom: "pool2"
+  bottom: "pool2_neg"
   top: "conv3a_neg"
   param {
     name: "conv3a_w"
@@ -1231,10 +1231,10 @@ layer {
   top: "conv3a_neg"
 }
 layer {
-  name: "pool3"
+  name: "pool3_neg"
   type: "NdPooling"
   bottom: "conv3a_neg"
-  top: "pool3"
+  top: "pool3_neg"
   pooling_param {
     pool: MAX
     kernel_shape { dim: 2 dim: 2 dim: 2 }
@@ -1246,7 +1246,7 @@ layer {
 layer {
   name: "conv4a_neg"
   type: "NdConvolution"
-  bottom: "pool3"
+  bottom: "pool3_neg"
   top: "conv4a_neg"
   param {
     name: "conv4a_w"
@@ -1280,10 +1280,10 @@ layer {
   top: "conv4a_neg"
 }
 layer {
-  name: "pool4"
+  name: "pool4_neg"
   type: "NdPooling"
   bottom: "conv4a_neg"
-  top: "pool4"
+  top: "pool4_neg"
   pooling_param {
     pool: MAX
     kernel_shape { dim: 2 dim: 2 dim: 2 }
@@ -1295,7 +1295,7 @@ layer {
 layer {
   name: "conv5a_neg"
   type: "NdConvolution"
-  bottom: "pool4"
+  bottom: "pool4_neg"
   top: "conv5a_neg"
   param {
     name: "conv5a_w"
