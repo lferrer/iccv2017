@@ -46,3 +46,7 @@ C3D-v1.0/build/
 caffe/build
 profile.log
 profile_inference.log
+
+# Tempfiles
+*.solverstate
+*.caffemodel

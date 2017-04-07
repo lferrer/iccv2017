@@ -714,32 +714,6 @@ layer {
   }
 }
 
-# ----- 3rd fc group -----
-layer {
-  name: "fc8"
-  type: "InnerProduct"
-  bottom: "fc7"
-  top: "fc8"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 101
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
 # ----- 2nd group -----
 layer {
   name: "conv1a_pos"
@@ -1069,32 +1043,6 @@ layer {
   }
 }
 
-# ----- 3rd fc group -----
-layer {
-  name: "fc8_pos"
-  type: "InnerProduct"
-  bottom: "fc7_pos"
-  top: "fc8_pos"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 101
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
 # ----- 3rd group -----
 layer {
   name: "conv1a_neg"
@@ -1424,39 +1372,12 @@ layer {
   }
 }
 
-# ----- 3rd fc group -----
-layer {
-  name: "fc8_neg"
-  type: "InnerProduct"
-  bottom: "fc7_neg"
-  top: "fc8_neg"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 101
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-
 layer{
   name: "loss"
   type: "TripletLoss"
-  bottom: "fc8"
-  bottom: "fc8_pos"
-  bottom: "fc8_neg"
+  bottom: "fc7"
+  bottom: "fc7_pos"
+  bottom: "fc7_neg"
   top: "loss"
   threshold_param {
      threshold: 1
