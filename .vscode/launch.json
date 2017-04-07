@@ -12,7 +12,7 @@
             "env": null,
             "envFile": "${workspaceRoot}/.env",
             "args": [
-                "C3D-v1.1/src/caffe/proto/caffe.proto", "../c3d_sports1m"
+                "/home/lferrer/Documents/Synthetic/MINI_LMDB", 10
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",

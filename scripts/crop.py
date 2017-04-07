@@ -3,7 +3,7 @@ import os
 import numpy as np
 import sys
 
-root = '/media/lferrer/Data/Downloads/Research/Synthetic/Full Res Videos/'
+root = '/home/lferrer/Downloads/Full Res Videos/'
 resX = 1920
 resY = 1080
 padding = 0.20
