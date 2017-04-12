@@ -82,8 +82,8 @@ for i in range(n_samples):
         os.makedirs(dest_dir)
     for new_index in range(index, index + CLIP_LENGTH):
         dest_filename = dest_dir + '/' + str(new_index) + ".jpg"
-        print sample_filename, dest_filename
         shutil.copy(sample_filename, dest_filename)
 
     fp_sample = not fp_sample
     list_file.write(sample_filename + "\n")
+list_file.close()
