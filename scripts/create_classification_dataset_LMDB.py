@@ -24,9 +24,6 @@ ELEVATION_ANGLES = [330, 340, 350]
 ROTATION_ANGLES = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, \
                    200, 220, 240, 260, 280, 300, 320, 340]
 DS_ROOT = '/home/lferrer/Documents/Synthetic'
-POSITIVE_LABEL = 1
-NEGATIVE_LABEL = 0
-INTRA_VIDEO_SSIM_THRESHOLD = 0.5
 # Video frames were to 128 by 171 (According to original paper)
 FRAME_WIDTH = 128
 FRAME_HEIGHT = 171
@@ -184,7 +181,7 @@ def generate_database(db_name, n_samples, index_start):
 
                 if (i + 1) % SAMPLE_PRINT_RATE == 0:
                     print "Generated {} out of {} samples".format(index + i + 1, int(n_samples))
-               
+
         index = index + n_samples_left
 
 # Create DBs

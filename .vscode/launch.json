@@ -12,7 +12,7 @@
             "env": null,
             "envFile": "${workspaceRoot}/.env",
             "args": [
-                "/home/lferrer/Documents/Synthetic/MINI_LMDB", 10
+                "~/Documents/Synthetic/NN", 10
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",

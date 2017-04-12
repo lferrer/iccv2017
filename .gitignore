@@ -50,3 +50,6 @@ profile_inference.log
 # Tempfiles
 *.solverstate
 *.caffemodel
+
+# VSCode
+.vscode
