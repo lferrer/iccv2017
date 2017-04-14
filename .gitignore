@@ -53,3 +53,7 @@ profile_inference.log
 
 # VSCode
 .vscode
+
+#Huge files
+features/
+weights/

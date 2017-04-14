@@ -5,6 +5,7 @@ from random import randint, random
 
 import cv2
 import numpy as np
+np.set_printoptions(threshold=np.inf) #Pretty print vectors
 import caffe
 
 CLIP_LENGTH = 16
@@ -78,8 +79,9 @@ else:
     features_path = sys.argv[2]
 
 # Start Caffe
-caffe.set_mode_cpu()
-net = caffe.Net(MODEL, WEIGHTS, caffe.TEST)
+caffe.set_device(1)
+caffe.set_mode_gpu()
+net = caffe.Net(MODEL, 1, weights=WEIGHTS)
 #net = caffe.Net(MODEL, 1)
 
 # build the mean object
@@ -118,6 +120,9 @@ for index in range(len(image_filenames)):
     # copy the image data into the memory allocated for the net
     net.blobs['data'].data[...] = image_data
     output = net.forward()
-    features_file.write(output + "\n")
+    output_features = output['fc7']
+    for feature in output_features:
+	features_file.write(str(feature) + "\n")
 
 features_file.close()
+

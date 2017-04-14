@@ -12,7 +12,7 @@
             "env": null,
             "envFile": "${workspaceRoot}/.env",
             "args": [
-                "~/Documents/Synthetic/NN", 10
+                "/home/lferrer/Documents/Synthetic/NN/file_list.txt", "../features_NN_ours.txt"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
