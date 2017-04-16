@@ -1,7 +1,7 @@
 import string
 import sys
 import os
-from random import randint, random
+from random import randint
 
 import cv2
 import numpy as np
@@ -99,7 +99,7 @@ net.blobs['data'].reshape(BATCH_SIZE,
 image_filenames = [line.rstrip('\n') for line in open(filenames_file, "r")]
 features_file = open(features_path, "w")
 
-for index in range(len(image_filenames)):
+for index in enumerate(image_filenames):
     image_data = np.empty([BATCH_SIZE,
                            3,         # 3-channel (BGR) images
                            CLIP_LENGTH,
@@ -122,7 +122,6 @@ for index in range(len(image_filenames)):
     output = net.forward()
     output_features = output['fc7']
     for feature in output_features:
-	features_file.write(str(feature) + "\n")
+        np.save(features_file, feature)
 
 features_file.close()
-
