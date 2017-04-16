@@ -70,13 +70,13 @@ def load_image_sample(sample_filename):
     return sample_image_data, sample_index
 
 if len(sys.argv) < 4:
-    print "Error: Not enough parameters given. Parameters needed: -gpu -weights_file -filenames_file -features_path"
+    print "Error: Not enough parameters given. Parameters needed: -gpu -weights_file -filenames_file -features_file"
     exit()
 else:
     gpu_id = int(sys.argv[1])
     weights_file = sys.argv[2]
     filenames_file = sys.argv[3]
-    features_path = sys.argv[4]
+    features_file = sys.argv[4]
 
 # Start Caffe
 caffe.set_device(gpu_id)
@@ -97,11 +97,14 @@ net.blobs['data'].reshape(BATCH_SIZE,
 
 # Get a pointer to the file
 image_filenames = [line.rstrip('\n') for line in open(filenames_file, "r")]
-features_file = open(features_path, "w")
 
 # Calculate the number of batches
 n_batches = len(image_filenames) / BATCH_SIZE
 filename_index = 0
+
+# Allocate the space to store the features
+features = np.empty([len(image_filenames), 2048])
+features_index = 0
 
 # Create batches
 for batch_index in range(n_batches):
@@ -114,11 +117,6 @@ for batch_index in range(n_batches):
     for j in range(BATCH_SIZE):
         image_filename = DS_ROOT + image_filenames[filename_index]
         sample_image_data, sample_index = load_image_sample(image_filename)
-        while sample_index == -1:
-            filename_index = filename_index + 1
-            image_filename = DS_ROOT + image_filenames[filename_index]
-            sample_image_data, sample_index = load_image_sample(image_filename)
-
         filename_index = filename_index + 1
 
         # Stack the images over the depth dimension
@@ -129,9 +127,11 @@ for batch_index in range(n_batches):
     output = net.forward()
     output_features = output['fc7']
     for feature in output_features:
-        np.save(features_file, feature)
+        features[features_index] = feature
+        features_index = features_index + 1
 
     print "Batch {}/{} done".format(batch_index + 1, n_batches)
 
-features_file.close()
+np.save(features_file, features)
+
 
