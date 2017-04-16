@@ -17,7 +17,6 @@ FRAME_HEIGHT = 171
 CROP_WIDTH = 112
 CROP_HEIGHT = 112
 MODEL = '../models/three_stream_deploy.prototxt'
-WEIGHTS = '../weights/c3d_ucf101_iter_1000.caffemodel'
 BATCH_SIZE = 18
 
 # Helper functions
@@ -70,17 +69,19 @@ def load_image_sample(sample_filename):
 
     return sample_image_data, sample_index
 
-if len(sys.argv) < 2:
-    print "Error: Not enough parameters given. Parameters needed: -filenames_file -features_path"
+if len(sys.argv) < 4:
+    print "Error: Not enough parameters given. Parameters needed: -gpu -weights_file -filenames_file -features_path"
     exit()
 else:
-    filenames_file = sys.argv[1]
-    features_path = sys.argv[2]
+    gpu_id = int(sys.argv[1])
+    weights_file = sys.argv[2]
+    filenames_file = sys.argv[3]
+    features_path = sys.argv[4]
 
 # Start Caffe
-caffe.set_device(0)
+caffe.set_device(gpu_id)
 caffe.set_mode_gpu()
-net = caffe.Net(MODEL, 1, weights=WEIGHTS)
+net = caffe.Net(MODEL, 1, weights=weights_file)
 #net = caffe.Net(MODEL, 1)
 
 # build the mean object
@@ -133,3 +134,4 @@ for batch_index in range(n_batches):
     print "Batch {}/{} done".format(batch_index + 1, n_batches)
 
 features_file.close()
+
