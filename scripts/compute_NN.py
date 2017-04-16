@@ -5,7 +5,6 @@ from random import randint
 
 import cv2
 import numpy as np
-np.set_printoptions(threshold=np.inf) #Pretty print vectors
 import caffe
 
 CLIP_LENGTH = 16
@@ -79,7 +78,7 @@ else:
     features_path = sys.argv[2]
 
 # Start Caffe
-caffe.set_device(1)
+caffe.set_device(0)
 caffe.set_mode_gpu()
 net = caffe.Net(MODEL, 1, weights=WEIGHTS)
 #net = caffe.Net(MODEL, 1)
@@ -99,20 +98,27 @@ net.blobs['data'].reshape(BATCH_SIZE,
 image_filenames = [line.rstrip('\n') for line in open(filenames_file, "r")]
 features_file = open(features_path, "w")
 
-for index in enumerate(image_filenames):
+# Calculate the number of batches
+n_batches = len(image_filenames) / BATCH_SIZE
+filename_index = 0
+
+# Create batches
+for batch_index in range(n_batches):
     image_data = np.empty([BATCH_SIZE,
                            3,         # 3-channel (BGR) images
                            CLIP_LENGTH,
                            CROP_WIDTH,
                            CROP_HEIGHT], dtype=np.uint8)
-    image_filename = DS_ROOT + image_filenames[index]
     # Generate a batch
     for j in range(BATCH_SIZE):
+        image_filename = DS_ROOT + image_filenames[filename_index]
         sample_image_data, sample_index = load_image_sample(image_filename)
         while sample_index == -1:
-            index = index + 1
-            image_filename = DS_ROOT + image_filenames[index]
+            filename_index = filename_index + 1
+            image_filename = DS_ROOT + image_filenames[filename_index]
             sample_image_data, sample_index = load_image_sample(image_filename)
+
+        filename_index = filename_index + 1
 
         # Stack the images over the depth dimension
         image_data[j] = sample_image_data
@@ -123,5 +129,7 @@ for index in enumerate(image_filenames):
     output_features = output['fc7']
     for feature in output_features:
         np.save(features_file, feature)
+
+    print "Batch {}/{} done".format(batch_index + 1, n_batches)
 
 features_file.close()

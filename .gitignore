@@ -55,5 +55,4 @@ profile_inference.log
 .vscode
 
 #Huge files
-features/
 weights/
