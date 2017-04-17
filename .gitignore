@@ -52,7 +52,7 @@ profile_inference.log
 *.caffemodel
 
 # VSCode
-.vscode
+.vscode/
 
 #Huge files
 weights/

@@ -41,15 +41,25 @@ def build_filename(first_person, scenario, index, elevation=330, rotation=0):
 def get_rnd_el(my_list):
     return my_list[randint(0, len(my_list) - 1)]
 
-def get_random_sample(fp_sample):
+def get_random_sample():
     scenario = get_rnd_el(SCENARIOS)
     index = randint(1, VIDEO_LENGTH - CLIP_LENGTH - 1)
-    if fp_sample:
-        return build_filename(True, scenario, index)
-    else:
-        elevation = get_rnd_el(ELEVATION_ANGLES)
-        rotation = get_rnd_el(ROTATION_ANGLES)
-        return build_filename(False, scenario, index, elevation, rotation)
+    fp_filename = build_filename(True, scenario, index)
+    elevation = get_rnd_el(ELEVATION_ANGLES)
+    rotation = get_rnd_el(ROTATION_ANGLES)
+    tp_filename = build_filename(False, scenario, index, elevation, rotation)
+    return fp_filename, tp_filename
+
+def copy_sample(sample_filename):
+    slash_index = string.rfind(sample_filename, '/')
+    index = int(sample_filename[slash_index + 1:-4])
+    sub_dir = sample_filename[len(DS_ROOT):slash_index]
+    dest_dir = db_path + sub_dir
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+    for new_index in range(index, index + CLIP_LENGTH):
+        dest_filename = dest_dir + '/' + str(new_index) + ".jpg"
+        shutil.copy(sample_filename, dest_filename)
 
 # Create DBs
 if len(sys.argv) < 2:
@@ -66,24 +76,19 @@ if not os.path.exists(db_path):
 
 list_file = open(db_path + "/file_list.txt", "w")
 
-fp_sample = True
 for i in range(n_samples):
-    sample_filename = get_random_sample(fp_sample)
-    while sample_filename in hit_dict:
-        sample_filename = get_random_sample(fp_sample)
+    fp_filename, tp_filename = get_random_sample()
+    while fp_filename in hit_dict:
+        fp_filename, tp_filename = get_random_sample()
 
-    hit_dict[sample_filename] = True
+    # Flag the sample
+    hit_dict[fp_filename] = True
 
-    slash_index = string.rfind(sample_filename, '/')
-    index = int(sample_filename[slash_index + 1:-4])
-    sub_dir = sample_filename[len(DS_ROOT):slash_index]
-    dest_dir = db_path + sub_dir
-    if not os.path.exists(dest_dir):
-        os.makedirs(dest_dir)
-    for new_index in range(index, index + CLIP_LENGTH):
-        dest_filename = dest_dir + '/' + str(new_index) + ".jpg"
-        shutil.copy(sample_filename, dest_filename)
+    # Copy the files
+    copy_sample(fp_filename)
+    copy_sample(tp_filename)
 
-    fp_sample = not fp_sample
-    list_file.write(sample_filename + "\n")
+    # Add them to the list file
+    list_file.write(fp_filename + "\n")
+    list_file.write(tp_filename + "\n")
 list_file.close()
