@@ -37,7 +37,7 @@ def load_image_sample(sample_filename):
     # Check if the image even exists
     if not os.path.exists(sample_filename):
         return [], -1
-
+   
     # Retrieve the index number
     base_sample_filename, sample_index = get_base_filename(sample_filename)
 
