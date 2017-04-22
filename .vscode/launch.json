@@ -12,7 +12,8 @@
             "env": null,
             "envFile": "${workspaceRoot}/.env",
             "args": [
-                "../features/NN_ours.npy"
+                "create_web_vis.py", "../features/NN_ours.npy", "../features/NN_theirs.npy", 
+                "~/Documents/Synthetic/NN/file_list.txt", "../visualizations/NN.html"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",

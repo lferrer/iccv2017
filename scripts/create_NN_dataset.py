@@ -89,6 +89,8 @@ for i in range(n_samples):
     copy_sample(tp_filename)
 
     # Add them to the list file
+    fp_filename = fp_filename[len(DS_ROOT) + 1:]
+    tp_filename = tp_filename[len(DS_ROOT) + 1:]
     list_file.write(fp_filename + "\n")
     list_file.write(tp_filename + "\n")
 list_file.close()
