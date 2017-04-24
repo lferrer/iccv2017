@@ -1,5 +1,5 @@
 import string
-from os import path
+from os import path, makedirs
 import sys
 import math
 from random import randint, random
@@ -23,6 +23,7 @@ SCENARIOS = ['Fire Pit', 'Grass Standard', 'Ice Natural', 'Reflection Agent', 'T
 ELEVATION_ANGLES = [330, 340, 350]
 ROTATION_ANGLES = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, \
                    200, 220, 240, 260, 280, 300, 320, 340]
+ANIM_ENDS = [88,176,366,556,576,596,655,714,773,832,891,950,1009,1068,1132,1194,1253,1328,1390,1444,1498,1507,1516,1557,1598,1629,1660,1691,1722,1912,2102,2253,2379,2569,2615,2661,2699,2745,2770,2810,2850,2873,2932,2941,2950,3206,3307,3437,3482,3534,3601,3668,3798,3928,3959,3985,4012,4063,4120,4177,4234,4291]
 DS_ROOT = '/home/lferrer/Documents/Synthetic'
 # Video frames were to 128 by 171 (According to original paper)
 FRAME_WIDTH = 128
@@ -42,12 +43,12 @@ def build_filename(first_person, scenario, index, elevation=330, rotation=0):
     if first_person:
         # First-Person goes from 1 - 4192
         image_name = str(index + 1) + '.jpg'
-        filename = path.join(DS_ROOT, 'First Person', scenario, image_name)
+        filename = path.join('First Person', scenario, image_name)
     else:
         # Third person goes from 0 to 4191
         image_name = str(index) + '.jpg'
         angle_folder = str(elevation) + '-' + str(rotation)
-        filename = path.join(DS_ROOT, 'Third Person', scenario, angle_folder, image_name)
+        filename = path.join('Third Person', scenario, angle_folder, image_name)
     return filename
 
 # Returns a random element from a list
@@ -121,13 +122,38 @@ def add_to_mean(image):
     image_count = image_count + 1
     image_mean = image_mean / image_count
 
+def compute_image_label(image_filename):
+    # Get the person
+    person = image_filename[:5]
+    # Remove the person from the filename
+    image_filename = image_filename[13:]
+    # Get the scene and add it to the label
+    slash_index = image_filename.find('/')
+    scene = image_filename[:slash_index]
+    scene_index = SCENARIOS.index(scene) + 1
+    # Get the image number
+    image_filename = image_filename[-10:]
+    slash_index = image_filename.find('/')
+    number = int(image_filename[slash_index + 1:-4]) # all files end in .jpg  
+    # FP frames are 1-based
+    if person == 'First':
+        number = number - 1
+    action = 0
+    while ANIM_ENDS[action] < number:
+        action = action + 1
+    return scene_index * 100 + action
 
 def load_image_triplet(anchor_filename, positive_filename, negative_filename):
+    # Expand the filenames
+    anchor_filename = path.join(DS_ROOT, anchor_filename)
+    positive_filename = path.join(DS_ROOT, positive_filename)
+    negative_filename = path.join(DS_ROOT, negative_filename)
+
     # Retrieve the index number
     base_anchor_filename, anchor_index = get_base_filename(anchor_filename)
     base_positive_filename, positive_index = get_base_filename(positive_filename)
     base_negative_filename, negative_index = get_base_filename(negative_filename)
-    
+
     # Load the base images from disk
     anchor_image = cv2.imread(anchor_filename)
     positive_image = cv2.imread(positive_filename)
@@ -173,13 +199,14 @@ def load_image_triplet(anchor_filename, positive_filename, negative_filename):
     image_data = np.dstack((anchor_image_data, positive_image_data, negative_image_data))
     return image_data
 
-def add_to_db(txn, image_data, i):
+def add_to_db(txn, image_data, label, i):
     # Build the caffe Datum
     datum = caffe.proto.caffe_pb2.Datum()
     datum.height = image_data.shape[0]
     datum.width = image_data.shape[1]
     datum.channels = image_data.shape[2]
     datum.data = image_data.tobytes()
+    datum.label = label
     str_id = '{:08}'.format(i)
 
     # The encode is only essential in Python 3
@@ -197,6 +224,10 @@ def create_index_list(n_samples):
     return index_list
 
 def generate_database(db_name, n_samples, index_start):
+    # Open log file
+    if not path.exists(db_name):
+        makedirs(db_name)
+    log_file = open(db_name + "/image_list.csv", "w")
     n_batches = int(math.ceil(n_samples / SAMPLE_BATCH_RATE))
     index = 0
     fp_anchor = True
@@ -206,15 +237,14 @@ def generate_database(db_name, n_samples, index_start):
         with env.begin(write=True) as txn:
             n_samples_left = int(min(SAMPLE_BATCH_RATE, n_samples - SAMPLE_BATCH_RATE*batch))
             for i in range(n_samples_left):
-
                 # Get a random triplet
                 anchor_filename, positive_filename, negative_filename = get_random_triplet(fp_anchor)
-                img_triplet = "{}-{}-{}".format(anchor_filename, positive_filename, negative_filename)
+                img_triplet = "{},{},{}".format(anchor_filename, positive_filename, negative_filename)
 
                 while img_triplet in hit_dict:
                     # Get an unused random triplet
                     anchor_filename, positive_filename, negative_filename = get_random_triplet(fp_anchor)
-                    img_triplet = "{}-{}-{}".format(anchor_filename, positive_filename, negative_filename)
+                    img_triplet = "{},{},{}".format(anchor_filename, positive_filename, negative_filename)
 
                 # Add the random image to the used list
                 hit_dict[img_triplet] = True
@@ -222,9 +252,19 @@ def generate_database(db_name, n_samples, index_start):
                 # Get the images from the disk
                 image_data = load_image_triplet(anchor_filename, positive_filename, negative_filename)
 
+                # Compute the labels
+                anchor_label = compute_image_label(anchor_filename)
+                negative_label = compute_image_label(negative_filename)
+                # Anchor's and Positive's labels are the same
+                triplet_label = "{}{}".format(anchor_label, negative_label)
+
                 # Add to the lmdb
                 db_index = int(index_list[index + index_start + i])
-                add_to_db(txn, image_data, db_index)
+                add_to_db(txn, image_data, long(triplet_label), db_index)
+
+                # Add the triplet to the log file
+                log_file.write(img_triplet + ',')
+                log_file.write("{},{}\n".format(anchor_label, negative_label))
 
                 # Invert the anchor to generate another type of sample
                 fp_anchor = not fp_anchor
@@ -232,9 +272,10 @@ def generate_database(db_name, n_samples, index_start):
                 if (i + 1) % SAMPLE_PRINT_RATE == 0:
                     print "Generated {} out of {} samples".format(index + i + 1, int(n_samples))
         index = index + n_samples_left
+    log_file.close()
 
 # Create DBs
-if len(sys.argv) < 2:
+if len(sys.argv) < 3:
     print "Error: Not enough parameters given. Parameters needed: -db_path -n_samples"
     exit()
 else:
