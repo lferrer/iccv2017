@@ -13,17 +13,47 @@ import caffe
 TRAINING_RATE = 0.7
 VALIDATION_RATE = 0.1
 TESTING_RATE = 0.2
-INTER_VIDEO_RATE = 0.080
+INTER_VIDEO_RATE = 0.80
 SAMPLE_PRINT_RATE = 100.0
 SAMPLE_BATCH_RATE = 1000.0
 CLIP_LENGTH = 16
-VIDEO_LENGTH = 4292
+VIDEO_LENGTH = 4291
+NUM_ACTIONS = 62
 SCENARIOS = ['Fire Pit', 'Grass Standard', 'Ice Natural', 'Reflection Agent', 'Temple Barbarous',
              'Fire Natural', 'Grass Pit', 'Ice Barbarous', 'Reflection Standard', 'Temple Agent']
 ELEVATION_ANGLES = [330, 340, 350]
 ROTATION_ANGLES = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, \
                    200, 220, 240, 260, 280, 300, 320, 340]
-ANIM_ENDS = [88,176,366,556,576,596,655,714,773,832,891,950,1009,1068,1132,1194,1253,1328,1390,1444,1498,1507,1516,1557,1598,1629,1660,1691,1722,1912,2102,2253,2379,2569,2615,2661,2699,2745,2770,2810,2850,2873,2932,2941,2950,3206,3307,3437,3482,3534,3601,3668,3798,3928,3959,3985,4012,4063,4120,4177,4234,4291]
+# Animation classes groups
+AIM = [0, 1]
+CROUCH_IDLE = [2, 3]
+CROUCH_TO_STAND = [4, 5]
+CROUCH_WALK = [6, 13]
+DEATH = [14, 18]
+EQUIP = [19, 20]
+FIRE_RIFLE = [21, 22] #Subgroup to represent a short class
+FIRE = [21, 24]
+HIT_REACT = [25, 28]
+IDLE = [29, 33]
+JOG = [34, 37]
+JUMP = [38, 40]
+PRONE = [41, 47]
+PRONE_FIRE = [43, 44] #Subgroup to represent a short class
+PRONE_TO_STAND = [48, 48]
+RELOAD = [49, 53]
+SPRINT = [61, 61]
+STAND_TO = [54, 56]
+WALK = [57, 60]
+ALL_ACTIONS = [AIM, CROUCH_IDLE, CROUCH_TO_STAND, CROUCH_WALK, DEATH, EQUIP, FIRE, HIT_REACT,
+               IDLE, JOG, JUMP, PRONE, PRONE_TO_STAND, RELOAD, SPRINT, STAND_TO, WALK]
+ACTIVE_ACTIONS = [AIM, CROUCH_TO_STAND, CROUCH_WALK, DEATH, JOG, JUMP, PRONE_TO_STAND, SPRINT, STAND_TO, WALK]
+PASSIVE_ACTIONS = [CROUCH_IDLE, EQUIP, FIRE, HIT_REACT, IDLE, PRONE, RELOAD]
+SHORT_ACTIONS = [FIRE_RIFLE, PRONE_FIRE]
+SHORT_ACTIONS_ENDS_INDICES = [21, 22, 43, 44]
+ACTION_ENDS = [89, 177, 368, 559, 578, 597, 656, 715, 774, 833, 892, 951, 1010, 1069, 1133, 1195, 1254, 1329,
+               1391, 1445, 1498, 1507, 1515, 1555, 1595, 1625, 1655, 1685, 1715, 1906, 2099, 2250, 2376, 2567,
+               2613, 2659, 2704, 2750, 2783, 2813, 2852, 2874, 2933, 2941, 2949, 3206, 3307, 3437, 3482, 3534,
+               3601, 3668, 3799, 3930, 3955, 3981, 4032, 4089, 4146, 4203, 4260, 4291]
 DS_ROOT = '/home/lferrer/Documents/Synthetic'
 # Video frames were to 128 by 171 (According to original paper)
 FRAME_WIDTH = 128
@@ -39,14 +69,11 @@ image_mean = np.zeros((1, 3))
 
 # Helper functions
 # Returns the filename of a given image based on the dataset structure
-def build_filename(first_person, scenario, index, elevation=330, rotation=0):
+def build_filename(first_person, scenario, frame_number, elevation=330, rotation=0):
+    image_name = str(frame_number) + '.jpg'
     if first_person:
-        # First-Person goes from 1 - 4192
-        image_name = str(index + 1) + '.jpg'
         filename = path.join('First Person', scenario, image_name)
     else:
-        # Third person goes from 0 to 4191
-        image_name = str(index) + '.jpg'
         angle_folder = str(elevation) + '-' + str(rotation)
         filename = path.join('Third Person', scenario, angle_folder, image_name)
     return filename
@@ -55,32 +82,30 @@ def build_filename(first_person, scenario, index, elevation=330, rotation=0):
 def get_rnd_el(my_list):
     return my_list[randint(0, len(my_list) - 1)]
 
-# Returns a random negative inter-video image tuple 
-def get_rnd_neg_inter_img(first_person, ref_scenario):
-    scenario = get_rnd_el(SCENARIOS)
-    while scenario == ref_scenario:
+# Returns a random negative sample
+def get_rnd_neg_sample(first_person, ref_scenario, same_scenario, ref_action_index):
+    if same_scenario:
+        scenario = ref_scenario
+    else:
+        # Get an scenario that is different from the previous one
         scenario = get_rnd_el(SCENARIOS)
-    index = randint(1, VIDEO_LENGTH - CLIP_LENGTH - 1)
+        while scenario == ref_scenario:
+            scenario = get_rnd_el(SCENARIOS)
+    # Get an index that will give us a clip spanning through a single action
+    # that is different from the previous one
+    frame_number, action_index = get_random_frame()
+    if find_in_actions(ref_action_index, ACTIVE_ACTIONS):
+        while find_in_actions(action_index, ACTIVE_ACTIONS):
+            frame_number, action_index = get_random_frame()
+    else:
+        while find_in_actions(action_index, PASSIVE_ACTIONS):
+            frame_number, action_index = get_random_frame()
     if first_person:
-        neg_filename = build_filename(True, scenario, index)
+        neg_filename = build_filename(True, scenario, frame_number)
     else:
         elevation = get_rnd_el(ELEVATION_ANGLES)
         rotation = get_rnd_el(ROTATION_ANGLES)
-        neg_filename = build_filename(False, scenario, index, elevation, rotation)
-    return neg_filename
-
-# Returns a random negative intra-video image tuple
-def get_rnd_neg_intra_img(first_person, scenario, ref_index):
-    delta = randint(VIDEO_LENGTH / 2, VIDEO_LENGTH - CLIP_LENGTH - 1)
-    index = ref_index + delta
-    if index >= VIDEO_LENGTH - CLIP_LENGTH:
-        index = index - (VIDEO_LENGTH - CLIP_LENGTH)
-    if first_person:
-        neg_filename = build_filename(True, scenario, index)
-    else:
-        elevation = get_rnd_el(ELEVATION_ANGLES)
-        rotation = get_rnd_el(ROTATION_ANGLES)
-        neg_filename = build_filename(False, scenario, index, elevation, rotation)
+        neg_filename = build_filename(False, scenario, frame_number, elevation, rotation)
     return neg_filename
 
 def get_base_filename(filename):
@@ -91,19 +116,35 @@ def get_base_filename(filename):
     base_filename = filename[:-image_file_length]
     return base_filename, index
 
+def get_random_frame():
+    # Get a random action that is valid
+    action_index = randint(0, NUM_ACTIONS - 1)
+    while find_in_actions(action_index, SHORT_ACTIONS):
+        action_index = randint(0, NUM_ACTIONS - 1)
+    # Get an index that will give us a clip spanning through a single action
+    if action_index == 0:
+        frame_number = randint(0, ACTION_ENDS[action_index] - CLIP_LENGTH)
+    else:
+        frame_number = randint(ACTION_ENDS[action_index - 1] + 1, ACTION_ENDS[action_index] - CLIP_LENGTH)
+    return frame_number, action_index
+
 def get_random_triplet(fp_anchor):
+    # First get a random scenario
     scenario = get_rnd_el(SCENARIOS)
-    index = randint(1, VIDEO_LENGTH - CLIP_LENGTH - 1)
-    fp_filename = build_filename(True, scenario, index)
+    # Get a frame_number that will give us a clip spanning through a single action
+    frame_number, action_id = get_random_frame()
+    # Get the First Person filename
+    fp_filename = build_filename(True, scenario, frame_number)
+    # Pick a random Third Person filename
     elevation = get_rnd_el(ELEVATION_ANGLES)
     rotation = get_rnd_el(ROTATION_ANGLES)
-    tp_filename = build_filename(False, scenario, index, elevation, rotation)
+    tp_filename = build_filename(False, scenario, frame_number, elevation, rotation)
 
     # Choose if the negative sample is going to be a inter or intra-video sample
     if random() < INTER_VIDEO_RATE:
-        negative_filename = get_rnd_neg_inter_img(not fp_anchor, scenario)
+        negative_filename = get_rnd_neg_sample(not fp_anchor, scenario, False, action_id)
     else:
-        negative_filename = get_rnd_neg_intra_img(not fp_anchor, scenario, index)
+        negative_filename = get_rnd_neg_sample(not fp_anchor, scenario, True, action_id)
 
     # Choose the anchor
     if fp_anchor:
@@ -122,9 +163,19 @@ def add_to_mean(image):
     image_count = image_count + 1
     image_mean = image_mean / image_count
 
+def get_action_id(frame_number):
+    action_id = 0
+    while ACTION_ENDS[action_id] < frame_number:
+        action_id = action_id + 1
+    return action_id
+
+def find_in_actions(action_id, actions_array):
+    for action_limits in actions_array:
+        if action_id >= action_limits[0] and action_id <= action_limits[1]:
+            return True
+    return False
+
 def compute_image_label(image_filename):
-    # Get the person
-    person = image_filename[:5]
     # Remove the person from the filename
     image_filename = image_filename[13:]
     # Get the scene and add it to the label
@@ -134,14 +185,9 @@ def compute_image_label(image_filename):
     # Get the image number
     image_filename = image_filename[-10:]
     slash_index = image_filename.find('/')
-    number = int(image_filename[slash_index + 1:-4]) # all files end in .jpg  
-    # FP frames are 1-based
-    if person == 'First':
-        number = number - 1
-    action = 0
-    while ANIM_ENDS[action] < number:
-        action = action + 1
-    return scene_index * 100 + action
+    frame_number = int(image_filename[slash_index + 1:-4]) # all files end in .jpg
+    action_id = get_action_id(frame_number)
+    return scene_index * 100 + action_id
 
 def load_image_triplet(anchor_filename, positive_filename, negative_filename):
     # Expand the filenames
@@ -281,8 +327,6 @@ if len(sys.argv) < 3:
 else:
     db_path = sys.argv[1]
     n_samples = int(sys.argv[2])
-
-print 'Generating database here: {} with {} samples'.format(db_path, n_samples)
 
 # Create a random index list to shuffle the data
 index_list = create_index_list(n_samples)
