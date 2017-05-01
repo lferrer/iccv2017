@@ -1,0 +1,45 @@
+name: "TripletLossTestNetwork"
+force_backward: true
+layer{
+    name: "AnchorDummyData"
+    top: "anchor"
+    type: "DummyData"
+    dummy_data_param: {
+        shape: { dim: 1 dim: 2048 }
+    }
+}
+
+layer{
+    name: "PositiveDummyData"
+    top: "positive"
+    type: "DummyData"
+    dummy_data_param: {
+        shape: { dim: 1 dim: 2048 }
+    }
+}
+
+layer{
+    name: "NegativeDummyData"
+    top: "negative"
+    type: "DummyData"
+    dummy_data_param: {
+        shape: { dim: 1 dim: 2048 }
+    }
+}
+
+layer {
+  type: 'Python'
+  name: 'loss'
+  top: 'loss'
+  bottom: 'anchor'
+  bottom: 'positive'
+  bottom: 'negative'
+  python_param {
+    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+    module: 'triplet_loss'
+    # the layer name -- the class name in the module
+    layer: 'TripletLossLayer'
+  }
+  # set loss weight so Caffe knows this is a loss layer
+  loss_weight: 1
+}

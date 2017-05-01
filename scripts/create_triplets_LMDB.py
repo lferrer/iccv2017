@@ -1,4 +1,3 @@
-import string
 from os import path, makedirs
 import sys
 import math
@@ -110,7 +109,7 @@ def get_rnd_neg_sample(first_person, ref_scenario, same_scenario, ref_action_ind
 
 def get_base_filename(filename):
     sub_filename = filename[-10:]
-    slash_index = string.find(sub_filename, '/')
+    slash_index = sub_filename.find('/')
     index = int(sub_filename[slash_index + 1:-4]) # all files end in .jpg
     image_file_length = 5 - slash_index + 4
     base_filename = filename[:-image_file_length]
@@ -128,6 +127,18 @@ def get_random_frame():
         frame_number = randint(ACTION_ENDS[action_index - 1] + 1, ACTION_ENDS[action_index] - CLIP_LENGTH)
     return frame_number, action_index
 
+def validate_frame(filename):
+    # Retrieve the frame number
+    base_filename, frame_number = get_base_filename(filename)
+    base_filename = path.join(DS_ROOT, base_filename)
+    exists = True
+    for i in range(CLIP_LENGTH):
+        # Update the filenames
+        filename = base_filename + str(frame_number + i) + '.jpg'
+        # Check for existence
+        exists = exists and path.exists( filename)
+    return exists
+
 def get_random_triplet(fp_anchor):
     # First get a random scenario
     scenario = get_rnd_el(SCENARIOS)
@@ -135,16 +146,32 @@ def get_random_triplet(fp_anchor):
     frame_number, action_id = get_random_frame()
     # Get the First Person filename
     fp_filename = build_filename(True, scenario, frame_number)
+    # Validate the frame
+    while not validate_frame(fp_filename):
+        frame_number, action_id = get_random_frame()
+        fp_filename = build_filename(True, scenario, frame_number)
+
     # Pick a random Third Person filename
     elevation = get_rnd_el(ELEVATION_ANGLES)
     rotation = get_rnd_el(ROTATION_ANGLES)
     tp_filename = build_filename(False, scenario, frame_number, elevation, rotation)
+    # Validate the frame
+    while not validate_frame(tp_filename):
+        elevation = get_rnd_el(ELEVATION_ANGLES)
+        rotation = get_rnd_el(ROTATION_ANGLES)
+        tp_filename = build_filename(False, scenario, frame_number, elevation, rotation)
 
     # Choose if the negative sample is going to be a inter or intra-video sample
     if random() < INTER_VIDEO_RATE:
         negative_filename = get_rnd_neg_sample(not fp_anchor, scenario, False, action_id)
+        # Validate the frame
+        while not validate_frame(negative_filename):
+            negative_filename = get_rnd_neg_sample(not fp_anchor, scenario, False, action_id)
     else:
         negative_filename = get_rnd_neg_sample(not fp_anchor, scenario, True, action_id)
+        # Validate the frame
+        while not validate_frame(negative_filename):
+            negative_filename = get_rnd_neg_sample(not fp_anchor, scenario, True, action_id)
 
     # Choose the anchor
     if fp_anchor:
