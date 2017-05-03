@@ -2,7 +2,7 @@ import numpy as np
 import caffe
 
 # Start Caffe
-caffe.set_device(1)
+caffe.set_device(2)
 caffe.set_mode_gpu()
 MODEL = '../models/dummy_model.prototxt'
 net = caffe.Net(MODEL, 1)
@@ -20,4 +20,5 @@ net.blobs['negative'].data[...] = [np.full(2048, 1, dtype=np.float32), np.full(2
 # Test the forward pass
 forward = net.forward()
 output_features = forward['loss']
+print output_features
 backward = net.backward()

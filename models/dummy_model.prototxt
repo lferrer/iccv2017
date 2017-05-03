@@ -30,9 +30,9 @@ layer{
 layer{
   name: "loss"
   type: "TripletLoss"
-  bottom: "fc7"
-  bottom: "fc7_pos"
-  bottom: "fc7_neg"
+  bottom: "anchor"
+  bottom: "positive"
+  bottom: "negative"
   top: "loss"
   threshold_param {
      threshold: 1
