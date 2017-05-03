@@ -9,4 +9,4 @@ display: 1
 max_iter: 100
 snapshot: 5000
 snapshot_prefix: "dummy"
-solver_mode: CPU
+solver_mode: GPU
