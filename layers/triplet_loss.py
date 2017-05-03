@@ -29,7 +29,7 @@ class TripletLossLayer(caffe.Layer):
         self.diff_diff_class[...] = bottom[0].data - bottom[2].data
 
         loss = 0
-        ALPHA = 1.0
+        ALPHA = 2048.0
         for v in range(self.batch_size):
             self.vec_loss[v] = ALPHA + \
                                np.linalg.norm(self.diff_same_class[v])**2 - \

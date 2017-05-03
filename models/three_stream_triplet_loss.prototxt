@@ -157,7 +157,7 @@ layer {
   data_param {
     source: "/data/leo-data/Synthetic/LMDB/Triplets/train"
     backend: LMDB
-    batch_size: 18
+    batch_size: 8
   }
 }
 layer {
@@ -1376,9 +1376,9 @@ layer {
   type: 'Python'
   name: 'loss'
   top: 'loss'
-  bottom: 'anchor'
-  bottom: 'positive'
-  bottom: 'negative'
+  bottom: 'fc7'
+  bottom: 'fc7_pos'
+  bottom: 'fc7_neg'
   python_param {
     # the module name -- usually the filename -- that needs to be in $PYTHONPATH
     module: 'triplet_loss'
