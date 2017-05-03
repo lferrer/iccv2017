@@ -1,6 +1,9 @@
 import numpy as np
 import caffe
 
+# Start Caffe
+caffe.set_device(1)
+caffe.set_mode_gpu()
 MODEL = '../models/dummy_model.prototxt'
 net = caffe.Net(MODEL, 1)
 
