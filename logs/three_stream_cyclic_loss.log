@@ -3234,3 +3234,159 @@ I0503 13:25:41.363193 13165 solver.cpp:404]     Test net output #0: loss = 54.12
 I0503 13:25:42.263015 13165 solver.cpp:228] Iteration 400, loss = 251.449
 I0503 13:25:42.263099 13165 solver.cpp:244]     Train net output #0: loss = 251.449 (* 1 = 251.449 loss)
 I0503 13:25:42.263119 13165 sgd_solver.cpp:106] Iteration 400, lr = 1e-05
+I0503 13:26:49.298575 13165 solver.cpp:228] Iteration 450, loss = 248.354
+I0503 13:26:49.298817 13165 solver.cpp:244]     Train net output #0: loss = 248.354 (* 1 = 248.354 loss)
+I0503 13:26:49.298861 13165 sgd_solver.cpp:106] Iteration 450, lr = 1e-05
+I0503 13:27:30.163935 13179 blocking_queue.cpp:50] Waiting for data
+I0503 13:27:56.259845 13165 solver.cpp:228] Iteration 500, loss = 223.897
+I0503 13:27:56.259922 13165 solver.cpp:244]     Train net output #0: loss = 223.897 (* 1 = 223.897 loss)
+I0503 13:27:56.259946 13165 sgd_solver.cpp:106] Iteration 500, lr = 1e-05
+I0503 13:28:55.250562 13179 blocking_queue.cpp:50] Waiting for data
+I0503 13:29:04.691416 13165 solver.cpp:228] Iteration 550, loss = 232.437
+I0503 13:29:04.691514 13165 solver.cpp:244]     Train net output #0: loss = 232.437 (* 1 = 232.437 loss)
+I0503 13:29:04.691526 13165 sgd_solver.cpp:106] Iteration 550, lr = 1e-05
+I0503 13:30:00.016120 13179 blocking_queue.cpp:50] Waiting for data
+I0503 13:30:15.514060 13165 solver.cpp:454] Snapshotting to binary proto file ../../weights/three_stream_cyclic_loss_iter_600.caffemodel
+I0503 13:30:17.482390 13165 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ../../weights/three_stream_cyclic_loss_iter_600.solverstate
+I0503 13:30:17.617594 13165 solver.cpp:337] Iteration 600, Testing net (#0)
+I0503 13:30:38.491521 13165 blocking_queue.cpp:50] Data layer prefetch queue empty
+I0503 13:30:41.592159 13165 solver.cpp:404]     Test net output #0: loss = 42.6171 (* 1 = 42.6171 loss)
+I0503 13:30:42.492161 13165 solver.cpp:228] Iteration 600, loss = 202.157
+I0503 13:30:42.492220 13165 solver.cpp:244]     Train net output #0: loss = 202.157 (* 1 = 202.157 loss)
+I0503 13:30:42.492249 13165 sgd_solver.cpp:106] Iteration 600, lr = 1e-05
+I0503 13:31:49.302516 13165 solver.cpp:228] Iteration 650, loss = 210.903
+I0503 13:31:49.303472 13165 solver.cpp:244]     Train net output #0: loss = 210.903 (* 1 = 210.903 loss)
+I0503 13:31:49.303493 13165 sgd_solver.cpp:106] Iteration 650, lr = 1e-05
+I0503 13:32:56.305043 13165 solver.cpp:228] Iteration 700, loss = 203.454
+I0503 13:32:56.305248 13165 solver.cpp:244]     Train net output #0: loss = 203.454 (* 1 = 203.454 loss)
+I0503 13:32:56.305274 13165 sgd_solver.cpp:106] Iteration 700, lr = 1e-05
+I0503 13:34:03.343920 13165 solver.cpp:228] Iteration 750, loss = 193.867
+I0503 13:34:03.349393 13165 solver.cpp:244]     Train net output #0: loss = 193.867 (* 1 = 193.867 loss)
+I0503 13:34:03.349411 13165 sgd_solver.cpp:106] Iteration 750, lr = 1e-05
+I0503 13:35:09.103587 13165 solver.cpp:454] Snapshotting to binary proto file ../../weights/three_stream_cyclic_loss_iter_800.caffemodel
+I0503 13:35:12.303293 13165 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ../../weights/three_stream_cyclic_loss_iter_800.solverstate
+I0503 13:35:12.443243 13165 solver.cpp:337] Iteration 800, Testing net (#0)
+I0503 13:35:38.095114 13165 solver.cpp:404]     Test net output #0: loss = 38.2711 (* 1 = 38.2711 loss)
+I0503 13:35:38.990432 13165 solver.cpp:228] Iteration 800, loss = 190.894
+I0503 13:35:38.990510 13165 solver.cpp:244]     Train net output #0: loss = 190.894 (* 1 = 190.894 loss)
+I0503 13:35:38.990527 13165 sgd_solver.cpp:106] Iteration 800, lr = 1e-05
+I0503 13:36:45.793963 13165 solver.cpp:228] Iteration 850, loss = 183.446
+I0503 13:36:45.803001 13165 solver.cpp:244]     Train net output #0: loss = 183.446 (* 1 = 183.446 loss)
+I0503 13:36:45.803021 13165 sgd_solver.cpp:106] Iteration 850, lr = 1e-05
+I0503 13:37:52.833505 13165 solver.cpp:228] Iteration 900, loss = 174.556
+I0503 13:37:52.833806 13165 solver.cpp:244]     Train net output #0: loss = 174.556 (* 1 = 174.556 loss)
+I0503 13:37:52.833822 13165 sgd_solver.cpp:106] Iteration 900, lr = 1e-05
+I0503 13:38:59.944330 13165 solver.cpp:228] Iteration 950, loss = 175.215
+I0503 13:38:59.944557 13165 solver.cpp:244]     Train net output #0: loss = 175.215 (* 1 = 175.215 loss)
+I0503 13:38:59.944586 13165 sgd_solver.cpp:106] Iteration 950, lr = 1e-05
+I0503 13:40:05.642014 13165 solver.cpp:454] Snapshotting to binary proto file ../../weights/three_stream_cyclic_loss_iter_1000.caffemodel
+I0503 13:40:11.488615 13165 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ../../weights/three_stream_cyclic_loss_iter_1000.solverstate
+I0503 13:40:11.631880 13165 solver.cpp:337] Iteration 1000, Testing net (#0)
+I0503 13:40:29.914142 13165 solver.cpp:404]     Test net output #0: loss = 48.9329 (* 1 = 48.9329 loss)
+I0503 13:40:30.802896 13165 solver.cpp:228] Iteration 1000, loss = 169.098
+I0503 13:40:30.802994 13165 solver.cpp:244]     Train net output #0: loss = 169.098 (* 1 = 169.098 loss)
+I0503 13:40:30.803042 13165 sgd_solver.cpp:106] Iteration 1000, lr = 1e-05
+I0503 13:41:37.607031 13165 solver.cpp:228] Iteration 1050, loss = 163.367
+I0503 13:41:37.607182 13165 solver.cpp:244]     Train net output #0: loss = 163.367 (* 1 = 163.367 loss)
+I0503 13:41:37.607197 13165 sgd_solver.cpp:106] Iteration 1050, lr = 1e-05
+I0503 13:42:31.863924 13179 blocking_queue.cpp:50] Waiting for data
+I0503 13:42:54.894047 13165 solver.cpp:228] Iteration 1100, loss = 173.849
+I0503 13:42:54.894131 13165 solver.cpp:244]     Train net output #0: loss = 173.849 (* 1 = 173.849 loss)
+I0503 13:42:54.894150 13165 sgd_solver.cpp:106] Iteration 1100, lr = 1e-05
+I0503 13:43:41.787331 13179 blocking_queue.cpp:50] Waiting for data
+I0503 13:44:08.950757 13165 solver.cpp:228] Iteration 1150, loss = 160.59
+I0503 13:44:08.950839 13165 solver.cpp:244]     Train net output #0: loss = 160.59 (* 1 = 160.59 loss)
+I0503 13:44:08.950856 13165 sgd_solver.cpp:106] Iteration 1150, lr = 1e-05
+I0503 13:44:10.580365 13165 blocking_queue.cpp:50] Data layer prefetch queue empty
+I0503 13:44:48.187464 13179 blocking_queue.cpp:50] Waiting for data
+I0503 13:45:21.112910 13165 solver.cpp:454] Snapshotting to binary proto file ../../weights/three_stream_cyclic_loss_iter_1200.caffemodel
+I0503 13:45:25.744823 13165 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ../../weights/three_stream_cyclic_loss_iter_1200.solverstate
+I0503 13:45:25.909206 13165 solver.cpp:337] Iteration 1200, Testing net (#0)
+I0503 13:45:59.985455 13165 solver.cpp:404]     Test net output #0: loss = 32.6515 (* 1 = 32.6515 loss)
+I0503 13:46:00.877073 13165 solver.cpp:228] Iteration 1200, loss = 153.651
+I0503 13:46:00.877147 13165 solver.cpp:244]     Train net output #0: loss = 153.651 (* 1 = 153.651 loss)
+I0503 13:46:00.877162 13165 sgd_solver.cpp:106] Iteration 1200, lr = 1e-05
+I0503 13:47:07.453052 13165 solver.cpp:228] Iteration 1250, loss = 147.907
+I0503 13:47:07.453241 13165 solver.cpp:244]     Train net output #0: loss = 147.907 (* 1 = 147.907 loss)
+I0503 13:47:07.453258 13165 sgd_solver.cpp:106] Iteration 1250, lr = 1e-05
+I0503 13:48:14.420861 13165 solver.cpp:228] Iteration 1300, loss = 151.624
+I0503 13:48:14.421038 13165 solver.cpp:244]     Train net output #0: loss = 151.624 (* 1 = 151.624 loss)
+I0503 13:48:14.421054 13165 sgd_solver.cpp:106] Iteration 1300, lr = 1e-05
+I0503 13:49:21.367240 13165 solver.cpp:228] Iteration 1350, loss = 146.642
+I0503 13:49:21.367420 13165 solver.cpp:244]     Train net output #0: loss = 146.642 (* 1 = 146.642 loss)
+I0503 13:49:21.367441 13165 sgd_solver.cpp:106] Iteration 1350, lr = 1e-05
+I0503 13:50:26.968670 13165 solver.cpp:454] Snapshotting to binary proto file ../../weights/three_stream_cyclic_loss_iter_1400.caffemodel
+I0503 13:50:37.198611 13165 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ../../weights/three_stream_cyclic_loss_iter_1400.solverstate
+I0503 13:50:37.343303 13165 solver.cpp:337] Iteration 1400, Testing net (#0)
+I0503 13:51:09.424055 13165 solver.cpp:404]     Test net output #0: loss = 45.9645 (* 1 = 45.9645 loss)
+I0503 13:51:10.315078 13165 solver.cpp:228] Iteration 1400, loss = 152.855
+I0503 13:51:10.315150 13165 solver.cpp:244]     Train net output #0: loss = 152.855 (* 1 = 152.855 loss)
+I0503 13:51:10.315166 13165 sgd_solver.cpp:106] Iteration 1400, lr = 1e-05
+I0503 13:52:16.825650 13165 solver.cpp:228] Iteration 1450, loss = 139.216
+I0503 13:52:16.825894 13165 solver.cpp:244]     Train net output #0: loss = 139.216 (* 1 = 139.216 loss)
+I0503 13:52:16.825927 13165 sgd_solver.cpp:106] Iteration 1450, lr = 1e-05
+I0503 13:53:23.614773 13165 solver.cpp:228] Iteration 1500, loss = 144.469
+I0503 13:53:23.614931 13165 solver.cpp:244]     Train net output #0: loss = 144.469 (* 1 = 144.469 loss)
+I0503 13:53:23.614953 13165 sgd_solver.cpp:106] Iteration 1500, lr = 1e-05
+I0503 13:54:30.503864 13165 solver.cpp:228] Iteration 1550, loss = 139.081
+I0503 13:54:30.504060 13165 solver.cpp:244]     Train net output #0: loss = 139.081 (* 1 = 139.081 loss)
+I0503 13:54:30.504076 13165 sgd_solver.cpp:106] Iteration 1550, lr = 1e-05
+I0503 13:55:36.121596 13165 solver.cpp:454] Snapshotting to binary proto file ../../weights/three_stream_cyclic_loss_iter_1600.caffemodel
+I0503 13:55:42.723378 13165 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ../../weights/three_stream_cyclic_loss_iter_1600.solverstate
+I0503 13:55:42.887565 13165 solver.cpp:337] Iteration 1600, Testing net (#0)
+I0503 13:55:44.603233 13165 blocking_queue.cpp:50] Data layer prefetch queue empty
+I0503 13:56:11.403246 13165 solver.cpp:404]     Test net output #0: loss = 30.8429 (* 1 = 30.8429 loss)
+I0503 13:56:12.312358 13165 solver.cpp:228] Iteration 1600, loss = 132.448
+I0503 13:56:12.312438 13165 solver.cpp:244]     Train net output #0: loss = 132.448 (* 1 = 132.448 loss)
+I0503 13:56:12.312454 13165 sgd_solver.cpp:106] Iteration 1600, lr = 1e-05
+I0503 13:57:18.922193 13165 solver.cpp:228] Iteration 1650, loss = 138.641
+I0503 13:57:18.924152 13165 solver.cpp:244]     Train net output #0: loss = 138.641 (* 1 = 138.641 loss)
+I0503 13:57:18.924176 13165 sgd_solver.cpp:106] Iteration 1650, lr = 1e-05
+I0503 13:58:25.879070 13165 solver.cpp:228] Iteration 1700, loss = 130.796
+I0503 13:58:25.879325 13165 solver.cpp:244]     Train net output #0: loss = 130.796 (* 1 = 130.796 loss)
+I0503 13:58:25.879365 13165 sgd_solver.cpp:106] Iteration 1700, lr = 1e-05
+I0503 13:59:32.821948 13165 solver.cpp:228] Iteration 1750, loss = 144.242
+I0503 13:59:32.822109 13165 solver.cpp:244]     Train net output #0: loss = 144.242 (* 1 = 144.242 loss)
+I0503 13:59:32.822136 13165 sgd_solver.cpp:106] Iteration 1750, lr = 1e-05
+I0503 14:00:38.489143 13165 solver.cpp:454] Snapshotting to binary proto file ../../weights/three_stream_cyclic_loss_iter_1800.caffemodel
+I0503 14:00:40.787168 13165 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ../../weights/three_stream_cyclic_loss_iter_1800.solverstate
+I0503 14:00:40.927723 13165 solver.cpp:337] Iteration 1800, Testing net (#0)
+I0503 14:01:08.689942 13165 solver.cpp:404]     Test net output #0: loss = 29.6774 (* 1 = 29.6774 loss)
+I0503 14:01:09.583053 13165 solver.cpp:228] Iteration 1800, loss = 137.213
+I0503 14:01:09.583122 13165 solver.cpp:244]     Train net output #0: loss = 137.213 (* 1 = 137.213 loss)
+I0503 14:01:09.583140 13165 sgd_solver.cpp:106] Iteration 1800, lr = 1e-05
+I0503 14:02:16.314684 13165 solver.cpp:228] Iteration 1850, loss = 129.753
+I0503 14:02:16.314975 13165 solver.cpp:244]     Train net output #0: loss = 129.753 (* 1 = 129.753 loss)
+I0503 14:02:16.315034 13165 sgd_solver.cpp:106] Iteration 1850, lr = 1e-05
+I0503 14:03:23.202579 13165 solver.cpp:228] Iteration 1900, loss = 129.653
+I0503 14:03:23.202811 13165 solver.cpp:244]     Train net output #0: loss = 129.653 (* 1 = 129.653 loss)
+I0503 14:03:23.202827 13165 sgd_solver.cpp:106] Iteration 1900, lr = 1e-05
+I0503 14:04:30.086205 13165 solver.cpp:228] Iteration 1950, loss = 133.78
+I0503 14:04:30.086431 13165 solver.cpp:244]     Train net output #0: loss = 133.78 (* 1 = 133.78 loss)
+I0503 14:04:30.086475 13165 sgd_solver.cpp:106] Iteration 1950, lr = 1e-05
+I0503 14:04:40.422933 13179 blocking_queue.cpp:50] Waiting for data
+I0503 14:05:43.906337 13165 solver.cpp:454] Snapshotting to binary proto file ../../weights/three_stream_cyclic_loss_iter_2000.caffemodel
+I0503 14:05:45.877612 13165 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ../../weights/three_stream_cyclic_loss_iter_2000.solverstate
+I0503 14:05:46.017495 13165 solver.cpp:337] Iteration 2000, Testing net (#0)
+I0503 14:05:52.463716 13165 blocking_queue.cpp:50] Data layer prefetch queue empty
+I0503 14:06:25.163959 13165 solver.cpp:404]     Test net output #0: loss = 44.4369 (* 1 = 44.4369 loss)
+I0503 14:06:26.052685 13165 solver.cpp:228] Iteration 2000, loss = 132.777
+I0503 14:06:26.052774 13165 solver.cpp:244]     Train net output #0: loss = 132.777 (* 1 = 132.777 loss)
+I0503 14:06:26.052799 13165 sgd_solver.cpp:106] Iteration 2000, lr = 1e-06
+I0503 14:07:01.058341 13179 blocking_queue.cpp:50] Waiting for data
+I0503 14:07:32.448951 13165 solver.cpp:228] Iteration 2050, loss = 125.898
+I0503 14:07:32.449113 13165 solver.cpp:244]     Train net output #0: loss = 125.898 (* 1 = 125.898 loss)
+I0503 14:07:32.449129 13165 sgd_solver.cpp:106] Iteration 2050, lr = 1e-06
+I0503 14:08:39.338840 13165 solver.cpp:228] Iteration 2100, loss = 124.333
+I0503 14:08:39.342231 13165 solver.cpp:244]     Train net output #0: loss = 124.333 (* 1 = 124.333 loss)
+I0503 14:08:39.342252 13165 sgd_solver.cpp:106] Iteration 2100, lr = 1e-06
+I0503 14:09:46.335062 13165 solver.cpp:228] Iteration 2150, loss = 122.085
+I0503 14:09:46.347580 13165 solver.cpp:244]     Train net output #0: loss = 122.085 (* 1 = 122.085 loss)
+I0503 14:09:46.347631 13165 sgd_solver.cpp:106] Iteration 2150, lr = 1e-06
+I0503 14:10:51.913174 13165 solver.cpp:454] Snapshotting to binary proto file ../../weights/three_stream_cyclic_loss_iter_2200.caffemodel
+I0503 14:10:53.919266 13165 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ../../weights/three_stream_cyclic_loss_iter_2200.solverstate
+I0503 14:10:54.072268 13165 solver.cpp:337] Iteration 2200, Testing net (#0)
+I0503 14:11:20.354526 13165 solver.cpp:404]     Test net output #0: loss = 28.0441 (* 1 = 28.0441 loss)
+I0503 14:11:21.251672 13165 solver.cpp:228] Iteration 2200, loss = 121.955
+I0503 14:11:21.251762 13165 solver.cpp:244]     Train net output #0: loss = 121.955 (* 1 = 121.955 loss)
+I0503 14:11:21.251791 13165 sgd_solver.cpp:106] Iteration 2200, lr = 1e-06

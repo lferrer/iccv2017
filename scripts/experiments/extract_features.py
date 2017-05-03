@@ -16,7 +16,7 @@ FRAME_HEIGHT = 171
 # And then cropped to 112 by 112
 CROP_WIDTH = 112
 CROP_HEIGHT = 112
-MODEL = '../models/three_stream_deploy.prototxt'
+MODEL = '../../models/three_stream_deploy.prototxt'
 BATCH_SIZE = 18
 
 # Helper functions
@@ -133,5 +133,6 @@ for batch_index in range(n_batches):
     print "Batch {}/{} done".format(batch_index + 1, n_batches)
 
 np.save(features_file, features)
+
 
 
