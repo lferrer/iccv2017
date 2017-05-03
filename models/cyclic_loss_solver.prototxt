@@ -23,5 +23,5 @@ display: 50
 max_iter: 20000
 # snapshot intermediate results
 snapshot: 200
-snapshot_prefix: "../weights/three_stream_triplet_loss"
+snapshot_prefix: "../../weights/three_stream_cyclic_loss"
 solver_mode: GPU

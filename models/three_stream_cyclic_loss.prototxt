@@ -3,7 +3,6 @@ layer {
   name: "data"
   type: "Data"
   top: "triplet"
-  top: "label"
   include {
     phase: TRAIN
   }
@@ -158,14 +157,13 @@ layer {
   data_param {
     source: "/data/leo-data/Synthetic/LMDB/Triplets/train"
     backend: LMDB
-    batch_size: 18
+    batch_size: 24
   }
 }
 layer {
   name: "data"
   type: "Data"
   top: "triplet"
-  top: "label"
   include {
     phase: TEST
     stage: "test-on-val"
@@ -381,7 +379,7 @@ layer {
 layer {
   name: "conv1a"
   type: "NdConvolution"
-  bottom: "anchor"
+  bottom: "positive"
   top: "conv1a"
   param {
     lr_mult: 1
@@ -700,7 +698,7 @@ layer {
 # ---- 8th layer ------
 layer {
   name: "auto8"
-  type: "NdConvolution"
+  type: "InnerProduct"
   bottom: "fc7"
   top: "auto8"
   param {
@@ -711,14 +709,11 @@ layer {
     lr_mult: 2
     decay_mult: 0
   }
-  convolution_param {
-    num_output: 1024
-    kernel_shape { dim: 3 dim: 3 dim: 3 }
-    stride_shape { dim: 1 dim: 1 dim: 1 }
-    pad_shape    { dim: 1 dim: 1 dim: 1 }
+  inner_product_param {
+    num_output: 2048
     weight_filler {
       type: "gaussian"
-      std: 0.01
+      std: 0.005
     }
     bias_filler {
       type: "constant"
@@ -733,155 +728,12 @@ layer {
   top: "auto8"
 }
 layer {
-  name: "pool8"
-  type: "NdPooling"
+  name: "drop8"
+  type: "Dropout"
   bottom: "auto8"
-  top: "pool8"
-  pooling_param {
-    pool: MAX
-    kernel_shape { dim: 2 dim: 2 dim: 2 }
-    stride_shape { dim: 2 dim: 2 dim: 2 }
-  }
-}
-
-# ---- 9th layer ------
-layer {
-  name: "auto9"
-  type: "NdConvolution"
-  bottom: "auto8"
-  top: "auto9"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 512
-    kernel_shape { dim: 3 dim: 3 dim: 3 }
-    stride_shape { dim: 1 dim: 1 dim: 1 }
-    pad_shape    { dim: 1 dim: 1 dim: 1 }
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-}
-layer {
-  name: "relu9"
-  type: "ReLU"
-  bottom: "auto9"
-  top: "auto9"
-}
-layer {
-  name: "pool9"
-  type: "NdPooling"
-  bottom: "auto9"
-  top: "pool9"
-  pooling_param {
-    pool: MAX
-    kernel_shape { dim: 2 dim: 2 dim: 2 }
-    stride_shape { dim: 2 dim: 2 dim: 2 }
-  }
-}
-
-# ---- 10th layer ------
-layer {
-  name: "auto10"
-  type: "NdConvolution"
-  bottom: "auto10"
-  top: "auto10"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 1024
-    kernel_shape { dim: 3 dim: 3 dim: 3 }
-    stride_shape { dim: 1 dim: 1 dim: 1 }
-    pad_shape    { dim: 1 dim: 1 dim: 1 }
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-}
-layer {
-  name: "relu10"
-  type: "ReLU"
-  bottom: "auto10"
-  top: "auto10"
-}
-layer {
-  name: "pool10"
-  type: "NdPooling"
-  bottom: "auto10"
-  top: "pool10"
-  pooling_param {
-    pool: MAX
-    kernel_shape { dim: 2 dim: 2 dim: 2 }
-    stride_shape { dim: 2 dim: 2 dim: 2 }
-  }
-}
-
-# ---- 11th layer ------
-layer {
-  name: "auto11"
-  type: "NdConvolution"
-  bottom: "auto11"
-  top: "auto11"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 2048
-    kernel_shape { dim: 3 dim: 3 dim: 3 }
-    stride_shape { dim: 1 dim: 1 dim: 1 }
-    pad_shape    { dim: 1 dim: 1 dim: 1 }
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-}
-layer {
-  name: "relu11"
-  type: "ReLU"
-  bottom: "auto11"
-  top: "auto11"
-}
-layer {
-  name: "pool11"
-  type: "NdPooling"
-  bottom: "auto11"
-  top: "pool11"
-  pooling_param {
-    pool: MAX
-    kernel_shape { dim: 2 dim: 2 dim: 2 }
-    stride_shape { dim: 2 dim: 2 dim: 2 }
+  top: "auto8"
+  dropout_param {
+    dropout_ratio: 0.5
   }
 }
 
@@ -1209,7 +1061,7 @@ layer {
 # ---- 8th layer ------
 layer {
   name: "auto8_3p"
-  type: "NdConvolution"
+  type: "InnerProduct"
   bottom: "fc7_3p"
   top: "auto8_3p"
   param {
@@ -1220,14 +1072,11 @@ layer {
     lr_mult: 2
     decay_mult: 0
   }
-  convolution_param {
-    num_output: 1024
-    kernel_shape { dim: 3 dim: 3 dim: 3 }
-    stride_shape { dim: 1 dim: 1 dim: 1 }
-    pad_shape    { dim: 1 dim: 1 dim: 1 }
+  inner_product_param {
+    num_output: 2048
     weight_filler {
       type: "gaussian"
-      std: 0.01
+      std: 0.005
     }
     bias_filler {
       type: "constant"
@@ -1242,155 +1091,12 @@ layer {
   top: "auto8_3p"
 }
 layer {
-  name: "pool8_3p"
-  type: "NdPooling"
+  name: "drop8_3p"
+  type: "Dropout"
   bottom: "auto8_3p"
-  top: "pool8_3p"
-  pooling_param {
-    pool: MAX
-    kernel_shape { dim: 2 dim: 2 dim: 2 }
-    stride_shape { dim: 2 dim: 2 dim: 2 }
-  }
-}
-
-# ---- 9th layer ------
-layer {
-  name: "auto9_3p"
-  type: "NdConvolution"
-  bottom: "auto8_3p"
-  top: "auto9_3p"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 512
-    kernel_shape { dim: 3 dim: 3 dim: 3 }
-    stride_shape { dim: 1 dim: 1 dim: 1 }
-    pad_shape    { dim: 1 dim: 1 dim: 1 }
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-}
-layer {
-  name: "relu9_3p"
-  type: "ReLU"
-  bottom: "auto9_3p"
-  top: "auto9_3p"
-}
-layer {
-  name: "pool9_3p"
-  type: "NdPooling"
-  bottom: "auto9_3p"
-  top: "pool9_3p"
-  pooling_param {
-    pool: MAX
-    kernel_shape { dim: 2 dim: 2 dim: 2 }
-    stride_shape { dim: 2 dim: 2 dim: 2 }
-  }
-}
-
-# ---- 10th layer ------
-layer {
-  name: "auto10_3p"
-  type: "NdConvolution"
-  bottom: "auto10_3p"
-  top: "auto10_3p"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 1024
-    kernel_shape { dim: 3 dim: 3 dim: 3 }
-    stride_shape { dim: 1 dim: 1 dim: 1 }
-    pad_shape    { dim: 1 dim: 1 dim: 1 }
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-}
-layer {
-  name: "relu10_3p"
-  type: "ReLU"
-  bottom: "auto10_3p"
-  top: "auto10_3p"
-}
-layer {
-  name: "pool10_3p"
-  type: "NdPooling"
-  bottom: "auto10_3p"
-  top: "pool10_3p"
-  pooling_param {
-    pool: MAX
-    kernel_shape { dim: 2 dim: 2 dim: 2 }
-    stride_shape { dim: 2 dim: 2 dim: 2 }
-  }
-}
-
-# ---- 11th layer ------
-layer {
-  name: "auto11_3p"
-  type: "NdConvolution"
-  bottom: "auto11_3p"
-  top: "auto11_3p"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  convolution_param {
-    num_output: 2048
-    kernel_shape { dim: 3 dim: 3 dim: 3 }
-    stride_shape { dim: 1 dim: 1 dim: 1 }
-    pad_shape    { dim: 1 dim: 1 dim: 1 }
-    weight_filler {
-      type: "gaussian"
-      std: 0.01
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-}
-layer {
-  name: "relu11_3p"
-  type: "ReLU"
-  bottom: "auto11_3p"
-  top: "auto11_3p"
-}
-layer {
-  name: "pool11_3p"
-  type: "NdPooling"
-  bottom: "auto11_3p"
-  top: "pool11_3p"
-  pooling_param {
-    pool: MAX
-    kernel_shape { dim: 2 dim: 2 dim: 2 }
-    stride_shape { dim: 2 dim: 2 dim: 2 }
+  top: "auto8_3p"
+  dropout_param {
+    dropout_ratio: 0.5
   }
 }
 
@@ -1400,8 +1106,8 @@ layer {
   top: 'loss'
   bottom: 'fc7'
   bottom: 'fc7_3p'
-  bottom: 'pool11'
-  bottom: 'pool11_3p'
+  bottom: 'auto8'
+  bottom: 'auto8_3p'
   python_param {
     # the module name -- usually the filename -- that needs to be in $PYTHONPATH
     module: 'cyclic_loss'
@@ -1411,3 +1117,4 @@ layer {
   # set loss weight so Caffe knows this is a loss layer
   loss_weight: 1
 }
+

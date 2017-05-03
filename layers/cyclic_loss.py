@@ -22,12 +22,18 @@ class CyclicLossLayer(caffe.Layer):
         top[0].reshape(1)
         # get other parameters
         self.batch_size = len(bottom[0].data)
+        self.first_person = True
 
     def forward(self, bottom, top):
-        diff_F = bottom[1].data - bottom[2].data
-        diff_G = bottom[0].data - bottom[3].data
+        if self.first_person:
+            diff_F = bottom[1].data - bottom[2].data
+            diff_G = bottom[0].data - bottom[3].data
+        else:
+            diff_F = bottom[0].data - bottom[3].data
+            diff_G = bottom[1].data - bottom[2].data
         # Storing for backward pass
         self.diff[...] = diff_F + diff_G
+        self.first_person = False
 
         top[0].data[...] = np.sum(diff_F**2) / bottom[1].num / 2. + np.sum(diff_G**2) / bottom[0].num / 2.
 
@@ -44,3 +50,4 @@ class CyclicLossLayer(caffe.Layer):
             else:
                 sign = -1
             bottom[i].diff[...] = sign * self.diff / bottom[i].num
+
