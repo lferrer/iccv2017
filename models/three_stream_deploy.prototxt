@@ -154,7 +154,7 @@ layer {
   data_param {
     source: "/data/leo-data/Synthetic/LMDB/Triplets/test"
     backend: LMDB
-    batch_size: 18
+    batch_size: 10
   }
 }
 
