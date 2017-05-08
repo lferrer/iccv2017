@@ -154,7 +154,7 @@ layer {
   data_param {
     source: "/data/leo-data/Synthetic/LMDB/Triplets/test"
     backend: LMDB
-    batch_size: 18
+    batch_size: 10
   }
 }
 
@@ -210,11 +210,26 @@ layer {
   bottom: "negative_stacked"
 }
 
+layer {
+  type: 'Python'
+  name: 'data_switch'
+  bottom: 'anchor'
+  bottom: 'positive'
+  top: 'first_person'
+  top: 'third_person'
+  python_param {
+    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+    module: 'data_switch'
+    # the layer name -- the class name in the module
+    layer: 'DataSwitchLayer'
+  }
+}
+
 # ----- 1st group -----
 layer {
   name: "conv1a"
   type: "NdConvolution"
-  bottom: "positive"
+  bottom: "first_person"
   top: "conv1a"
   param {
     lr_mult: 1
@@ -529,55 +544,12 @@ layer {
   }
 }
 
-# ----- Auto-Encoder -----
-# ---- 8th layer ------
-layer {
-  name: "auto8"
-  type: "InnerProduct"
-  bottom: "fc7"
-  top: "auto8"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 2048
-    weight_filler {
-      type: "gaussian"
-      std: 0.005
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-}
-layer {
-  name: "relu8"
-  type: "ReLU"
-  bottom: "auto8"
-  top: "auto8"
-}
-layer {
-  name: "drop8"
-  type: "Dropout"
-  bottom: "auto8"
-  top: "auto8"
-  dropout_param {
-    dropout_ratio: 0.5
-  }
-}
-
 # ---------- 2nd stream ------------
 # ----- 1st group -----
 layer {
   name: "conv1a_3p"
   type: "NdConvolution"
-  bottom: "anchor"
+  bottom: "third_person"
   top: "conv1a_3p"
   param {
     lr_mult: 1
@@ -892,64 +864,18 @@ layer {
   }
 }
 
-# ----- Auto-Encoder -----
-# ---- 8th layer ------
-layer {
-  name: "auto8_3p"
-  type: "InnerProduct"
-  bottom: "fc7_3p"
-  top: "auto8_3p"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 2048
-    weight_filler {
-      type: "gaussian"
-      std: 0.005
-    }
-    bias_filler {
-      type: "constant"
-      value: 1
-    }
-  }
-}
-layer {
-  name: "relu8_3p"
-  type: "ReLU"
-  bottom: "auto8_3p"
-  top: "auto8_3p"
-}
-layer {
-  name: "drop8_3p"
-  type: "Dropout"
-  bottom: "auto8_3p"
-  top: "auto8_3p"
-  dropout_param {
-    dropout_ratio: 0.5
-  }
-}
-
 layer {
   type: 'Python'
-  name: 'loss'
-  top: 'loss'
-  bottom: 'fc7'
-  bottom: 'fc7_3p'
-  bottom: 'auto8'
-  bottom: 'auto8_3p'
+  name: "save"
+  bottom: "fc7"
+  bottom: "fc7_3p"
   python_param {
     # the module name -- usually the filename -- that needs to be in $PYTHONPATH
-    module: 'cyclic_loss'
+    module: 'save_features'
     # the layer name -- the class name in the module
-    layer: 'CyclicLossLayer'
-  }
-  # set loss weight so Caffe knows this is a loss layer
-  loss_weight: 1
-}
+    layer: 'SaveFeaturesLayer'
+    # Put the number of samples here
+    param_str : '15000'
 
+  }
+}
