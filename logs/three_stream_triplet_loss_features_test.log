@@ -2081,3 +2081,5 @@ I0507 16:46:54.128069 21938 net.cpp:283] Network initialization done.
 I0507 16:46:55.895340 21938 net.cpp:761] Ignoring source layer fc8
 I0507 16:46:55.895407 21938 net.cpp:761] Ignoring source layer loss
 I0507 16:46:55.897542 21938 caffe.cpp:285] Running for 1500 iterations.
+I0507 17:02:36.760223 21938 caffe.cpp:313] Loss: 0
+Features saved
