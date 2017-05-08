@@ -1,11 +1,8 @@
-name: "C3D-Three-Streams"
+name: "C3D-Two-Streams-Deploy"
 layer {
   name: "data"
   type: "Data"
   top: "triplet"
-  include {
-    phase: TRAIN
-  }
   transform_param {
     crop_size: 112
     mean_value: 65
@@ -155,171 +152,9 @@ layer {
     mirror: true
   }
   data_param {
-    source: "/data/leo-data/Synthetic/LMDB/Triplets/train"
+    source: "/data/leo-data/Synthetic/LMDB/Triplets/test"
     backend: LMDB
-    batch_size: 24
-  }
-}
-layer {
-  name: "data"
-  type: "Data"
-  top: "triplet"
-  include {
-    phase: TEST
-    stage: "test-on-val"
-  }
-  transform_param {
-    crop_size: 112
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mean_value: 65
-    mean_value: 74
-    mean_value: 92
-    mirror: false
-  }
-  data_param {
-    source: "/data/leo-data/Synthetic/LMDB/Triplets/val"
-    backend: LMDB
-    batch_size: 1
+    batch_size: 18
   }
 }
 

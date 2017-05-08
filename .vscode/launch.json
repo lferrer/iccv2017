@@ -12,8 +12,8 @@
             "env": null,
             "envFile": "${workspaceRoot}/.env",
             "args": [
-                "create_web_vis.py", "../features/NN_ours.npy", "../features/NN_theirs.npy", 
-                "~/Documents/Synthetic/NN/file_list.txt", "../visualizations/NN.html"
+                "/home/lferrer/Documents/iccv2017/logs/three_stream_cyclic_loss.log", "../../visualizations/triplet_loss.png",
+                "60000", "50", "200"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",

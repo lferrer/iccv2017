@@ -425,22 +425,23 @@ layer {
     threshold: 1
   }
 }
-F0404 09:58:46.657992 28756 insert_splits.cpp:29] Unknown bottom blob 'triplet' (layer 'slicer', bottom index 0)
-*** Check failure stack trace: ***
-    @     0x7fc1825085cd  google::LogMessage::Fail()
-    @     0x7fc18250a433  google::LogMessage::SendToLog()
-    @     0x7fc18250815b  google::LogMessage::Flush()
-    @     0x7fc18250ae1e  google::LogMessageFatal::~LogMessageFatal()
-    @     0x7fc182ad8c74  caffe::InsertSplits()
-    @     0x7fc182a7653e  caffe::Net<>::Init()
-    @     0x7fc182a795d1  caffe::Net<>::Net()
-    @     0x7fc182a82f0a  caffe::Solver<>::InitTestNets()
-I0404 09:58:46.668145 28760 blocking_queue.cpp:50] Waiting for data
-    @     0x7fc182a83925  caffe::Solver<>::Init()
-    @     0x7fc182a83c5a  caffe::Solver<>::Solver()
-    @     0x7fc182aafff3  caffe::Creator_SGDSolver<>()
-    @           0x40bd1a  train()
-    @           0x408618  main
-    @     0x7fc180c81830  __libc_start_main
-    @           0x408ee9  _start
-    @              (nil)  (unknown)
+I0502 22:14:51.363607 28586 solver.cpp:337] Iteration 1200, Testing net (#0)
+I0502 22:15:20.466855 28586 solver.cpp:404]     Test net output #0: loss = 0.433839 (* 1 = 0.433839 loss)
+I0502 22:15:21.372045 28586 solver.cpp:228] Iteration 1200, loss = 0.493098
+I0502 22:15:21.372117 28586 solver.cpp:244]     Train net output #0: loss = 0.493094 (* 1 = 0.493094 loss)
+I0502 22:15:21.372128 28586 sgd_solver.cpp:106] Iteration 1200, lr = 1e-05
+I0502 22:17:37.907474 28586 solver.cpp:228] Iteration 1250, loss = 0.366826
+I0502 22:17:37.907722 28586 solver.cpp:244]     Train net output #0: loss = 0.366822 (* 1 = 0.366822 loss)
+I0502 22:17:37.907754 28586 sgd_solver.cpp:106] Iteration 1250, lr = 1e-05
+I0502 22:19:54.130496 28586 solver.cpp:228] Iteration 1300, loss = 0.257089
+I0502 22:19:54.143101 28586 solver.cpp:244]     Train net output #0: loss = 0.257086 (* 1 = 0.257086 loss)
+I0502 22:19:54.143126 28586 sgd_solver.cpp:106] Iteration 1300, lr = 1e-05
+I0502 22:22:10.177309 28586 solver.cpp:228] Iteration 1350, loss = 0.13418
+I0502 22:22:10.178395 28586 solver.cpp:244]     Train net output #0: loss = 0.134176 (* 1 = 0.134176 loss)
+I0502 22:22:10.178407 28586 sgd_solver.cpp:106] Iteration 1350, lr = 1e-05
+I0502 22:24:23.890291 28586 solver.cpp:454] Snapshotting to binary proto file three_stream_triplet_loss_iter_1400.caffemodel
+I0502 22:24:28.721678 28586 sgd_solver.cpp:273] Snapshotting solver state to binary proto file three_stream_triplet_loss_iter_1400.solverstate
+I0502 22:24:28.781343 28586 solver.cpp:337] Iteration 1400, Testing net (#0)
+I0502 22:24:57.944690 28586 solver.cpp:404]     Test net output #0: loss = 0.411089 (* 1 = 0.411089 loss)
+I0502 22:24:58.847496 28586 solver.cpp:228] Iteration 1400, loss = 0.139203
+I0502 22:24:58.847553 28586 solver.cpp:244]     Train net output #0: loss = 0.139199 (* 1 = 0.139199 loss)
