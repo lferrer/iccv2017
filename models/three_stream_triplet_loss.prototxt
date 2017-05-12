@@ -1444,7 +1444,6 @@ layer {
     # the layer name -- the class name in the module
     layer: 'TripletCheckLayer'
     # Put the number of samples here and the filename
-    param_str : ['35000', '../../features/triplet_loss_triplet_distance.npz']
-
+    param_str : '{"n_samples":"35000", "filename":"../../features/triplet_loss_triplet_distance.npz"}'
   }
 }

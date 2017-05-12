@@ -1,6 +1,6 @@
 import caffe
 import numpy as np
-
+import json
 
 class TripletCheckLayer(caffe.Layer):
     def setup(self, bottom, top):
@@ -8,8 +8,9 @@ class TripletCheckLayer(caffe.Layer):
         if len(bottom) != 3:
             raise Exception("Need three inputs to check a triplet")
         if hasattr(self, 'param_str') and self.param_str:
-            self.n_samples = int(self.param_str[0])
-            self.filename = self.param_str[1]
+            params = json.loads(self.param_str)
+            self.n_samples = int(params['n_samples'])
+            self.filename = self.params['filename']
         else:
             raise Exception("Need to setup param_str")
         self.sample_index = 0
