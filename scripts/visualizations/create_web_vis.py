@@ -1,98 +1,109 @@
 import sys
-import numpy as np
 import string
+import csv
+import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
 
-def parse_filename(filename):
-    view_less_filename = filename[13:]
-    slash_index = view_less_filename.find('/')
-    scene = view_less_filename[:slash_index]
-    sub_filename = filename[-10:]
-    slash_index = string.find(sub_filename, '/')
-    index = int(sub_filename[slash_index + 1:-4]) # all files end in .jpg
-    return scene, index
 
-def compute_NN(features_file):
-    # Loading features and computing NearestNeighbors
-    features = np.load(features_file)
-    fp_features = features[::2]
-    tp_features = features[1::2]
+def parse_label(label):
+    if len(label) > 3:
+        scene = label[:2]
+    else:
+        scene = label[:1]
+    action = label[-2:]
+    return scene, action
 
-    # Compute the cosine similarity between the features
-    distances = pairwise_distances(fp_features, Y=tp_features, metric='cosine', n_jobs=-1)
+# Returns the column of the filename for third person files
+def third_file(index):
+    if index % 2 == 0:
+        return 1
+    else:
+        return 0
 
-    # Store the N_NEIGHBORS smallest distances for each First Person feature
-    min_distances = [[1e12 for i in range(N_NEIGHBORS)] for j in range(len(fp_features))]
-    min_indices = [[-1 for i in range(N_NEIGHBORS)] for j in range(len(fp_features))]
-
-    for index, distance_vector in enumerate(distances):
-        for tp_index, dist in enumerate(distance_vector):
-            for min_dist_index, min_dist in enumerate(min_distances[index]):
-                if dist < min_dist:
-                    min_distances[index][min_dist_index] = dist
-                    min_indices[index][min_dist_index] = tp_index
-                    break
-
-    return min_distances, min_indices
+# Returns the column of the label for third person files
+def third_label(index):
+    if index % 2 == 0:
+        return 4
+    else:
+        return 3
 
 
-if len(sys.argv) < 5:
-    print "Error: Not enough parameters given. Parameters needed: "
-    print "-our_features_file -their_features_file -filenames_file -output_html_file"
-    exit()
-else:
-    our_features_file = sys.argv[1]
-    their_features_file = sys.argv[2]
-    filenames_file = sys.argv[3]
-    output_html_file = sys.argv[4]
+# Returns the column of the filename for first person files
+def first_file(index):
+    if index % 2 == 0:
+        return 0
+    else:
+        return 1
 
-N_NEIGHBORS = 5
-DS_ROOT = '/home/lferrer/Documents/Synthetic/NN/'
+# Returns the column of the label for first person files
+def first_label(index):
+    if index % 2 == 0:
+        return 3
+    else:
+        return 4
 
-# Compute the N_NEIGHBORS for both features
-our_distances, our_indices = compute_NN(our_features_file)
-their_distances, their_indices = compute_NN(their_features_file)
 
-# Load the image filenames to print the results
-image_filenames = [line.rstrip('\n') for line in open(filenames_file, "r")]
+if __name__ == '__main__':
+    if len(sys.argv) < 4:
+        print "Error: Not enough parameters given. Parameters needed: "
+        print "-our_neighbors_file -their_neighbors_file -filenames_file -output_html_file"
+        exit()
+    else:
+        OUR_NEIGHBORS_FILE = sys.argv[1]
+        THEIR_NEIGHBORS_FILE = sys.argv[2]
+        filenames_file = sys.argv[3]
+        output_html_file = sys.argv[4]
 
-html_code = '<!doctype html><title>Nearest Neighbors Visualization</title><body><table>'
-html_code = html_code + '<tr><td/><td/><td>Our Neighbors</td><td/><td/><td/><td/><td/><td>Their Neighbors</td><td/><td/>'
-for index in range(len(our_indices)):
-    html_code = html_code + "<tr><td style='width: 200px;'><img src='"
-    html_code = html_code + DS_ROOT + image_filenames[2*index]
-    html_code = html_code + "'/></td>"
-    fp_scene, fp_index = parse_filename(image_filenames[2*index])
-    for n in range(N_NEIGHBORS):
-        html_code = html_code + "<td style='"
-        tp_scene, tp_index = parse_filename(image_filenames[2*our_indices[index][n] + 1])
-        if fp_scene == tp_scene:
-            if abs(fp_index - tp_index) <= 16:
-                html_code = html_code + "background-color:#00ff00;"
-            else:
-                html_code = html_code + "background-color:#ffff00;"
-        for m in range(N_NEIGHBORS):
-            if our_indices[index][n] == their_indices[index][m]:
-                html_code = html_code + "border: solid 1px #00f;"
-        html_code = html_code + "'><img src='"
-        html_code = html_code + DS_ROOT + image_filenames[2*our_indices[index][n] + 1]
+    our_file = np.load(OUR_NEIGHBORS_FILE)
+    our_indices = our_file['arr_0']
+    their_file = np.load(THEIR_NEIGHBORS_FILE)
+    their_indices = their_file['arr_0']
+
+    N_NEIGHBORS = len(our_indices[0])
+    DS_ROOT = '/home/lferrer/Documents/Synthetic/'
+
+    # Load the image filenames to print the results
+    image_filenames = [line for line in csv.reader(open(filenames_file, "r"))]
+
+    html_code = '<!doctype html><title>Nearest Neighbors Visualization</title><body><table>'
+    html_code = html_code + '<tr><td/><td/><td>Our Neighbors</td><td/><td/><td/><td/><td/><td>Their Neighbors</td><td/><td/>'
+    for i, _ in enumerate(our_indices):
+        html_code = html_code + "<tr><td style='width: 200px;'><img src='"
+        html_code = html_code + DS_ROOT + image_filenames[i][first_file(i)]
         html_code = html_code + "'/></td>"
-    html_code = html_code + "<td style='border-right: solid 1px #f00; border-left: solid 1px #f00;'/>"
-    for n in range(N_NEIGHBORS):
-        html_code = html_code + "<td style='"
-        tp_scene, tp_index = parse_filename(image_filenames[2*their_indices[index][n] + 1])
-        if fp_scene == tp_scene:
-            if abs(fp_index - tp_index) <= 16:
-                html_code = html_code + "background-color:#00ff00;"
-            else:
-                html_code = html_code + "background-color:#ffff00;"
-        for m in range(N_NEIGHBORS):
-            if their_indices[index][n] == our_indices[index][m]:
-                html_code = html_code + "border: solid 1px #00f;"
-        html_code = html_code + "'><img src='"
-        html_code = html_code + DS_ROOT + image_filenames[2*their_indices[index][n] + 1]
-        html_code = html_code + "'/></td>"
-    html_code = html_code + "</tr>"
-html_code = html_code + "</table></body>"
-with open(output_html_file, "w") as html_file:
-    html_file.write(html_code)
+        fp_scene, fp_index = parse_label(image_filenames[i][first_label(i)])
+        for n in range(N_NEIGHBORS):
+            html_code = html_code + "<td style='"
+            n_i = our_indices[i][n]
+            tp_scene, tp_index = parse_label(image_filenames[n_i][third_label(n_i)])
+            if fp_scene == tp_scene:
+                if fp_index == tp_index:
+                    html_code = html_code + "background-color:#00ff00;"
+                else:
+                    html_code = html_code + "background-color:#ffff00;"
+            for m in range(N_NEIGHBORS):
+                if our_indices[i][n] == their_indices[i][m]:
+                    html_code = html_code + "border: solid 1px #00f;"
+            html_code = html_code + "'><img src='"
+            html_code = html_code + DS_ROOT + image_filenames[n_i][third_file(n_i)]
+            html_code = html_code + "'/></td>"
+        html_code = html_code + "<td style='border-right: solid 1px #f00; border-left: solid 1px #f00;'/>"
+        for n in range(N_NEIGHBORS):
+            html_code = html_code + "<td style='"
+            n_i = their_indices[i][n]
+            tp_scene, tp_index = parse_label(image_filenames[n_i][third_label(n_i)])
+            if fp_scene == tp_scene:
+                if fp_index == tp_index:
+                    html_code = html_code + "background-color:#00ff00;"
+                else:
+                    html_code = html_code + "background-color:#ffff00;"
+            for m in range(N_NEIGHBORS):
+                if their_indices[i][n] == our_indices[i][m]:
+                    html_code = html_code + "border: solid 1px #00f;"
+            html_code = html_code + "'><img src='"
+            html_code = html_code + DS_ROOT + image_filenames[n_i][third_file(n_i)]
+            html_code = html_code + "'/></td>"
+        html_code = html_code + "</tr>"
+    html_code = html_code + "</table></body>"
+    with open(output_html_file, "w") as html_file:
+        html_file.write(html_code)

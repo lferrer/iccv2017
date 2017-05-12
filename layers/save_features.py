@@ -8,7 +8,8 @@ class SaveFeaturesLayer(caffe.Layer):
         if len(bottom) == 0:
             raise Exception("Need at least one input")
         if hasattr(self, 'param_str') and self.param_str:
-            self.n_samples = int(self.param_str)
+            self.n_samples = int(self.param_str[0])
+            self.filename = self.param_str[1]
         else:
             raise Exception("Need to setup param_str")
         self.sample_index = 0
