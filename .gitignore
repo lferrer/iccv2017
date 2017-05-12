@@ -1,0 +1,24 @@
+# Compiled Lua sources
+luac.out
+# luarocks build files
+*.src.rock *.zip *.tar.gz
+# Object files
+*.o *.os *.ko *.obj *.elf
+# Precompiled Headers
+*.gch *.pch
+# Libraries
+*.lib *.a *.la *.lo *.def *.exp
+# Shared objects (inc. Windows DLLs)
+*.dll *.so *.so.* *.dylib
+# Executables
+*.exe *.out *.app *.i*86 *.x86_64 *.hex
+# C3D build
+C3D-v1.1/build/ C3D-v1.1/examples/c3d_ucf101_finetuning/c3d_resnet18_sports1m_r2_iter_2800000.caffemodel 
+C3D-v1.0/build/ caffe/build profile.log profile_inference.log
+# Tempfiles
+*.solverstate *.caffemodel
+# VSCode
+.vscode/
+#Huge files
+weights/
+features/
