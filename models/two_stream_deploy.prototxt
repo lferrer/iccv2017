@@ -875,7 +875,7 @@ layer {
     # the layer name -- the class name in the module
     layer: 'SaveFeaturesLayer'
     # Put the number of samples here
-    param_str : '15000'
+    param_str : '10000'
 
   }
 }
