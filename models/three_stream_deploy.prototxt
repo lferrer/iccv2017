@@ -152,7 +152,7 @@ layer {
     mirror: true
   }
   data_param {
-    source: "/data/leo-data/Synthetic/LMDB/Triplets/test"
+    source: "/data/leo-data/Synthetic/LMDB/Triplets/train"
     backend: LMDB
     batch_size: 10
   }
@@ -554,14 +554,17 @@ layer {
 }
 
 layer {
+  type: 'Python'
   name: "mvn"
-  type: "MVN"
   bottom: "fc7"
   top: "fc7_norm"
-  mvn_param {
-    normalize_variance: true
-    across_channels: false
-    eps: 1e-09
+  python_param {
+    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+    module: 'mvn'
+    # the layer name -- the class name in the module
+    layer: 'MVNLayer'
+    # Put the number of samples here and the filename
+    # param_str : ''
   }
 }
 
@@ -899,14 +902,17 @@ layer {
 }
 
 layer {
+  type: 'Python'
   name: "mvn_pos"
-  type: "MVN"
   bottom: "fc7_pos"
   top: "fc7_pos_norm"
-  mvn_param {
-    normalize_variance: true
-    across_channels: false
-    eps: 1e-09
+  python_param {
+    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+    module: 'mvn'
+    # the layer name -- the class name in the module
+    layer: 'MVNLayer'
+    # Put the number of samples here and the filename
+    # param_str : ''
   }
 }
 
@@ -1244,14 +1250,17 @@ layer {
 }
 
 layer {
+  type: 'Python'
   name: "mvn_neg"
-  type: "MVN"
   bottom: "fc7_neg"
   top: "fc7_neg_norm"
-  mvn_param {
-    normalize_variance: true
-    across_channels: false
-    eps: 1e-09
+  python_param {
+    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+    module: 'mvn'
+    # the layer name -- the class name in the module
+    layer: 'MVNLayer'
+    # Put the number of samples here and the filename
+    # param_str : ''
   }
 }
 
@@ -1267,7 +1276,7 @@ layer {
     # the layer name -- the class name in the module
     layer: 'SaveFeaturesLayer'
     # Put the number of samples here
-    param_str : '10000'
-
+    param_str : '{"n_samples":"35000", "filename":"../../features/features_triplet_loss_mvn_train.npz"}'
   }
 }
+

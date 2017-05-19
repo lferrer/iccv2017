@@ -8,9 +8,9 @@ class TripletCheckLayer(caffe.Layer):
         if len(bottom) != 3:
             raise Exception("Need three inputs to check a triplet")
         if hasattr(self, 'param_str') and self.param_str:
-            params = json.loads(self.param_str)
+            params = json.loads(self.param_str)            
             self.n_samples = int(params['n_samples'])
-            self.filename = self.params['filename']
+            self.filename = params['filename']
         else:
             raise Exception("Need to setup param_str")
         self.sample_index = 0
@@ -30,14 +30,16 @@ class TripletCheckLayer(caffe.Layer):
         for i in range(self.batch_size):
             dist_same_feature = np.linalg.norm(bottom[0].data[i] - bottom[1].data[i])**2
             dist_diff_feature = np.linalg.norm(bottom[0].data[i] - bottom[2].data[i])**2
-            self.features[self.sample_index + i] = dist_same_feature + dist_diff_feature
+	    if self.sample_index + i < self.n_samples:
+                self.distances[self.sample_index + i] = dist_same_feature + dist_diff_feature
 
         self.sample_index = self.sample_index + self.batch_size
         if self.sample_index >= self.n_samples:
             self.n_epochs += 1
             self.sample_index = 0
-            np.savez_compressed(self.filename + self.n_epochs + '.npz', self.features)
-        print 'Features saved'
+            my_filename = self.filename + str(self.n_epochs) + '.npz'
+            np.savez_compressed(my_filename, self.distances)
+            print 'Features saved to: ' + my_filename
 
     def backward(self, top, propagate_down, bottom):
         pass

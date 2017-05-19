@@ -1437,7 +1437,7 @@ layer{
   bottom: "fc7_neg_norm"
   top: "loss"
   threshold_param {
-     threshold: 0.054999542433
+     threshold: 1
   }
 }
 
@@ -1453,6 +1453,6 @@ layer {
     # the layer name -- the class name in the module
     layer: 'TripletCheckLayer'
     # Put the number of samples here and the filename
-    param_str : '{"n_samples":"35000", "filename":"../../features/triplet_loss_triplet_distance_"}'
+    param_str : '{"n_samples":"35000", "filename":"../../features/triplet_loss_triplet_distance.npz"}'
   }
 }

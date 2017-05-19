@@ -1,6 +1,6 @@
 import caffe
+import json
 import numpy as np
-
 
 class SaveFeaturesLayer(caffe.Layer):
     def setup(self, bottom, top):
@@ -8,8 +8,9 @@ class SaveFeaturesLayer(caffe.Layer):
         if len(bottom) == 0:
             raise Exception("Need at least one input")
         if hasattr(self, 'param_str') and self.param_str:
-            self.n_samples = int(self.param_str[0])
-            self.filename = self.param_str[1]
+            params = json.loads(self.param_str)
+            self.n_samples = int(params['n_samples'])
+            self.filename = params['filename']
         else:
             raise Exception("Need to setup param_str")
         self.sample_index = 0
@@ -32,8 +33,9 @@ class SaveFeaturesLayer(caffe.Layer):
         #print np.nonzero(self.features[0][0])
         self.sample_index = self.sample_index + self.batch_size
         if self.sample_index == self.n_samples:
-            np.savez_compressed('../../features/features.npz', self.features)
-	    print 'Features saved'
+            np.savez_compressed(self.filename, self.features)
+	    print 'Features saved to: ' + self.filename
 
     def backward(self, top, propagate_down, bottom):
         pass
+
