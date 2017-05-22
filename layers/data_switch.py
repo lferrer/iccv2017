@@ -9,7 +9,7 @@ class DataSwitchLayer(caffe.Layer):
             raise Exception("Need two inputs to compute cyclic loss.")
         # check output pair
         if len(top) != 2:
-            raise Exception("Need two inputs to compute cyclic loss.")
+            raise Exception("Need two outputs to compute cyclic loss.")
         # Specifying type of input data
         self.first_person = True
 
@@ -18,8 +18,8 @@ class DataSwitchLayer(caffe.Layer):
         # check input dimensions match
         if bottom[0].count != bottom[1].count:
             raise Exception("Inputs 0 and 1 must have the same dimension.")
-	top[0].reshape(len(bottom[0].data), 3, 16, 112, 112)
-	top[1].reshape(len(bottom[1].data), 3, 16, 112, 112)
+        top[0].reshape(len(bottom[0].data), 3, 16, 112, 112)
+        top[1].reshape(len(bottom[1].data), 3, 16, 112, 112)
 
     def forward(self, bottom, top):
         if self.first_person:
