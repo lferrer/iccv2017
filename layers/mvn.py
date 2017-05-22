@@ -14,20 +14,16 @@ class MVNLayer(caffe.Layer):
         # get other parameters
         self.batch_size = len(bottom[0].data)
         self.norm = np.zeros(self.batch_size)
-        self.squares = np.zeros((self.batch_size, len(bottom[0].data[0])))
 
     def forward(self, bottom, top):
         for i in range(self.batch_size):
-            self.squares[i] = bottom[0].data[i]**2
-            self.norm[i] = np.sqrt(np.sum(self.squares[i]))
-            #print self.norm[i]
-            top[0].data[i] = bottom[0].data[i] / self.norm[i]
-	    #print np.linalg.norm(top[0].data[i])
+            self.norm[i] = 1 / np.sqrt(np.sum(bottom[0].data[i]**2))
+            top[0].data[i] = bottom[0].data[i] * self.norm[i]
 
     def backward(self, top, propagate_down, bottom):
-        if propagate_down:
+        if propagate_down[0]:
             for i in range(self.batch_size):
-                temp = self.squares[i] - bottom[0].data[i]**2
-                my_diff = temp / self.squares[i]**2.5
-                bottom[0].diff[i] = top[0].diff[i] * my_diff
+                alpha = np.dot(top[0].diff[i], top[0].data[i])
+                right = alpha*top[0].data[i]
+                bottom[0].diff[i] = self.norm[i] * (top[0].diff[i] - right)
 
