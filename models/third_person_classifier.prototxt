@@ -396,11 +396,23 @@ layer {
   type: 'Python'
   name: 'label_split'
   bottom: 'raw_label'
-  top: 'label'  
+  top: 'fp_label'
+  top: 'tp_label'  
   python_param {
     module: 'label_split'
-    layer: 'LabelSplitLayer'
-    # 'Scene' or 'Action' splits are supported
+    layer: 'LabelSplitLayer'    
+  }
+}
+
+layer {
+  type: 'Python'
+  name: 'label_parse'
+  bottom: 'tp_label'
+  top: 'label'  
+  python_param {
+    module: 'label_parse'
+    layer: 'LabelParseLayer'
+    # 'Scene' or 'Action' parses are supported
     param_str : 'Scene'
   }
 }
@@ -409,6 +421,7 @@ layer {
   name: "silence_first_person"
   type: "Silence"
   bottom: 'first_person'
+  bottom: 'fp_label'
 }
 
 # ----- 1st group -----
