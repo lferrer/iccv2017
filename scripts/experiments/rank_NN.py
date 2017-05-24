@@ -39,6 +39,12 @@ def first_label(index):
     else:
         return 4
 
+def get_frame_number(filename):
+    sub_filename = filename[-10:]
+    slash_index = sub_filename.find('/')
+    index = int(sub_filename[slash_index + 1:-4]) # all files end in .jpg
+    return index
+
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print "Error: Not enough parameters given. Parameters needed: "
@@ -60,24 +66,35 @@ if __name__ == '__main__':
     rank_frame_total = 0
 
     for first_index, first_neighbors in enumerate(neighbors):
-        rank_scene = 1
-        rank_action = 1
-        rank_frame = 1
+        found_scene = False
+        found_frame = False
+        found_action = False
+        list_scene = []
+        list_frame = []
+        list_action = []
         first_scene, first_action = parse_label(image_filenames[first_index][first_label(first_index)])
+        first_frame = get_frame_number(image_filenames[first_index][first_file(first_index)])
         for i, third_index in enumerate(first_neighbors):
-            if rank_frame == i + 1:
-                if first_index != third_index:
-                    rank_frame += 1
+            if not found_frame:
+                third_frame = get_frame_number(image_filenames[third_index][third_file(third_index)])
+                if third_frame not in list_frame:
+                    list_frame.append(third_frame)
+                if abs(third_frame - first_frame) <= 8:
+                    found_frame = True                    
             third_scene, third_action = parse_label(image_filenames[third_index][third_label(third_index)])            
-            if rank_action == i + 1:
-                if first_action != third_action:
-                    rank_action += 1
-            if rank_scene == i + 1:
-                if first_scene != third_scene:
-                    rank_scene += 1
-        rank_scene_total += rank_scene
-        rank_action_total += rank_action
-        rank_frame_total += rank_frame
+            if not found_action:
+                if third_action not in list_action:
+                    list_action.append(third_action)
+                if first_action == third_action:
+                    found_action = True
+            if not found_scene:
+                if third_scene not in list_scene:
+                    list_scene.append(third_scene)
+                if first_scene == third_scene:
+                    found_scene = True
+        rank_scene_total += len(list_scene)
+        rank_action_total += len(list_action)
+        rank_frame_total += len(list_frame)
 
     rank_scene_total = float(rank_scene_total) / float(len(neighbors))
     rank_action_total = float(rank_action_total) / float(len(neighbors))

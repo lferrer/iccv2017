@@ -1,4 +1,4 @@
-net: "../../models/first_person_classifier.prototxt"
+net: "../../models/third_person_classifier.prototxt"
 # num test samples / batch_size = 41822/10 = 4182, but only 100 iterations
 # are used for testing to speed up training
 # optionally run test on train set, to monitor overfitting
@@ -23,5 +23,5 @@ display: 50
 max_iter: 60000
 # snapshot intermediate results
 snapshot: 2000
-snapshot_prefix: "../../weights/first_person_scene"
+snapshot_prefix: "../../weights/third_person_scene"
 solver_mode: GPU

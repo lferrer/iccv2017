@@ -59,7 +59,7 @@ if __name__ == '__main__':
     their_file = np.load(THEIR_NEIGHBORS_FILE)
     their_indices = their_file['arr_0']
 
-    N_NEIGHBORS = len(our_indices[0])
+    N_NEIGHBORS = 5
     DS_ROOT = '/home/lferrer/Documents/Synthetic/'
 
     # Load the image filenames to print the results
@@ -67,6 +67,7 @@ if __name__ == '__main__':
 
     html_code = '<!doctype html><title>Nearest Neighbors Visualization</title><body><table>'
     html_code = html_code + '<tr><td/><td/><td>Our Neighbors</td><td/><td/><td/><td/><td/><td>Their Neighbors</td><td/><td/>'
+    same_neighbors = 0
     for i, _ in enumerate(our_indices):
         html_code = html_code + "<tr><td style='width: 200px;'><img src='"
         html_code = html_code + DS_ROOT + image_filenames[i][first_file(i)]
@@ -84,6 +85,7 @@ if __name__ == '__main__':
             for m in range(N_NEIGHBORS):
                 if our_indices[i][n] == their_indices[i][m]:
                     html_code = html_code + "border: solid 1px #00f;"
+                    same_neighbors += 1
             html_code = html_code + "'><img src='"
             html_code = html_code + DS_ROOT + image_filenames[n_i][third_file(n_i)]
             html_code = html_code + "'/></td>"
@@ -107,3 +109,4 @@ if __name__ == '__main__':
     html_code = html_code + "</table></body>"
     with open(output_html_file, "w") as html_file:
         html_file.write(html_code)
+    print same_neighbors, len(our_indices)

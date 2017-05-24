@@ -1,12 +1,13 @@
 import numpy as np
 import sys
 
-if len(sys.argv) < 2:
+if len(sys.argv) < 3:
     print "Error: Not enough parameters given. Parameters needed: "
-    print "-features_file"
+    print "-features_file -alpha"
     exit()
 else:
     features_file = sys.argv[1]
+    ALPHA = float(sys.argv[2])
     N_STREAMS = 3
     
     my_file = np.load(features_file)
@@ -28,10 +29,12 @@ average_dist = 0
 for i, anchor_feature in enumerate(anchor):
     positive_feature = positive[i]
     negative_feature = negative[i]
-    dist_same_feature = np.linalg.norm(anchor_feature - positive_feature)**2
-    dist_diff_feature = np.linalg.norm(anchor_feature - negative_feature)**2
-    loss = dist_same_feature - dist_diff_feature
-    if loss > 0:
+    dist_same_feature = anchor_feature - positive_feature
+    l2_dist_same_feature = np.dot(dist_same_feature, dist_same_feature)
+    dist_diff_feature = anchor_feature - negative_feature
+    l2_dist_diff_feature = np.dot(dist_diff_feature, dist_diff_feature)
+    loss = l2_dist_diff_feature - l2_dist_same_feature
+    if loss >= ALPHA:
         valid_cases += 1
     average_dist += loss
 print float(valid_cases) / float(len(anchor))

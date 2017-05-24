@@ -1,4 +1,4 @@
-name: "C3D-FP-Classifier"
+name: "C3D-TP-Classifier"
 layer {
   name: "data"
   type: "Data"
@@ -406,9 +406,9 @@ layer {
 }
 
 layer {
-  name: "silence_third_person"
+  name: "silence_first_person"
   type: "Silence"
-  bottom: 'third_person'
+  bottom: 'first_person'
 }
 
 # ----- 1st group -----
@@ -418,11 +418,11 @@ layer {
   bottom: "first_person"
   top: "conv1a"
   param {
-    lr_mult: 1
-    decay_mult: 1
+    lr_mult: 0
+    decay_mult: 0
   }
   param {
-    lr_mult: 2
+    lr_mult: 0
     decay_mult: 0
   }
   convolution_param {
@@ -465,11 +465,11 @@ layer {
   bottom: "pool1"
   top: "conv2a"
   param {
-    lr_mult: 1
-    decay_mult: 1
+    lr_mult: 0
+    decay_mult: 0
   }
   param {
-    lr_mult: 2
+    lr_mult: 0
     decay_mult: 0
   }
   convolution_param {
@@ -512,11 +512,11 @@ layer {
   bottom: "pool2"
   top: "conv3a"
   param {
-    lr_mult: 1
-    decay_mult: 1
+    lr_mult: 0
+    decay_mult: 0
   }
   param {
-    lr_mult: 2
+    lr_mult: 0
     decay_mult: 0
   }
   convolution_param {
@@ -559,11 +559,11 @@ layer {
   bottom: "pool3"
   top: "conv4a"
   param {
-    lr_mult: 1
-    decay_mult: 1
+    lr_mult: 0
+    decay_mult: 0
   }
   param {
-    lr_mult: 2
+    lr_mult: 0
     decay_mult: 0
   }
   convolution_param {
@@ -606,11 +606,11 @@ layer {
   bottom: "pool4"
   top: "conv5a"
   param {
-    lr_mult: 1
-    decay_mult: 1
+    lr_mult: 0
+    decay_mult: 0
   }
   param {
-    lr_mult: 2
+    lr_mult: 0
     decay_mult: 0
   }
   convolution_param {
@@ -653,11 +653,11 @@ layer {
   bottom: "pool5"
   top: "fc6"
   param {
-    lr_mult: 1
-    decay_mult: 1
+    lr_mult: 0
+    decay_mult: 0
   }
   param {
-    lr_mult: 2
+    lr_mult: 0
     decay_mult: 0
   }
   inner_product_param {
@@ -695,11 +695,11 @@ layer {
   bottom: "fc6"
   top: "fc7"
   param {
-    lr_mult: 1
-    decay_mult: 1
+    lr_mult: 0
+    decay_mult: 0
   }
   param {
-    lr_mult: 2
+    lr_mult: 0
     decay_mult: 0
   }
   inner_product_param {
