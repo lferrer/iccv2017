@@ -1,5 +1,4 @@
 import caffe
-import numpy as np
 
 class LabelSplitLayer(caffe.Layer):
     def setup(self, bottom, top):
@@ -14,18 +13,17 @@ class LabelSplitLayer(caffe.Layer):
             raise Exception("Need to setup param_str")
 
     def reshape(self, bottom, top):
-        pass
+        top[0].reshape(len(bottom[0].data), 1)
 
     def forward(self, bottom, top):
         for i, label in enumerate(bottom[0].data):
+            print label
+            label = str(label)
             if self.l_type:
-                #top[0].data[i] = label[:len(label) - 2]
-                if len(label) == 4:
-                    top[0].data[i] = np.asarray(label[:2])
-                else:
-                    top[0].data[i] = np.asarray(label[:1])
+                my_value = label[:len(label) - 2]
             else:
-                top[0].data[i] = np.asarray(label[-2:])
+                my_value = label[-2:]
+            top[0].data[i] = int(my_value)
 
     def backward(self, top, propagate_down, bottom):
         pass
