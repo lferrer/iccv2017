@@ -1,12 +1,13 @@
 import caffe
+import numpy as np
 
 class LabelSplitLayer(caffe.Layer):
     def setup(self, bottom, top):
         if hasattr(self, 'param_str') and self.param_str:
             if self.param_str == 'Scene':
-                self.type = True
+                self.l_type = True
             elif self.param_str == 'Action':
-                self.type = False
+                self.l_type = False
             else:
                 raise Exception("Unsupported label type: " + self.param_str)
         else:
@@ -17,14 +18,14 @@ class LabelSplitLayer(caffe.Layer):
 
     def forward(self, bottom, top):
         for i, label in enumerate(bottom[0].data):
-            if self.type:
+            if self.l_type:
                 #top[0].data[i] = label[:len(label) - 2]
                 if len(label) == 4:
-                    top[0].data[i] = label[:2]
+                    top[0].data[i] = np.asarray(label[:2])
                 else:
-                    top[0].data[i] = label[:1]
+                    top[0].data[i] = np.asarray(label[:1])
             else:
-                top[0].data[i] = label[-2:]
+                top[0].data[i] = np.asarray(label[-2:])
 
     def backward(self, top, propagate_down, bottom):
         pass

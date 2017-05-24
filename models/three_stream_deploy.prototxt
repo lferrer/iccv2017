@@ -152,7 +152,7 @@ layer {
     mirror: true
   }
   data_param {
-    source: "/data/leo-data/Synthetic/LMDB/Triplets/test"
+    source: "/data/leo-data/Synthetic/LMDB/Triplets/train"
     backend: LMDB
     batch_size: 10
   }
@@ -1276,7 +1276,7 @@ layer {
     # the layer name -- the class name in the module
     layer: 'SaveFeaturesLayer'
     # Put the number of samples here
-    param_str : '{"n_samples":"10000", "filename":"../../features/features_triplet_loss_mvn_test.npz"}'
+    param_str : '{"n_samples":"35000", "filename":"../../features/features_baseline_train.npz"}'
   }
 }
 

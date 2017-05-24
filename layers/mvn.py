@@ -26,7 +26,3 @@ class MVNLayer(caffe.Layer):
                 alpha = np.dot(top[0].diff[i], top[0].data[i])
                 right = alpha*top[0].data[i]
                 bottom[0].diff[i] = self.norm[i] * (top[0].diff[i] - right)
-<<<<<<< HEAD
-=======
-
->>>>>>> 3ef7452d03874596799282cfee3b1ebbbb880f96
