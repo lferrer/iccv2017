@@ -28,6 +28,7 @@ class DataSwitchLayer(caffe.Layer):
         else:
             top[1].data[...] = bottom[0].data[...]
             top[0].data[...] = bottom[1].data[...]
+        self.first_person = not self.first_person
 
     def backward(self, top, propagate_down, bottom):
         pass

@@ -428,7 +428,7 @@ layer {
 layer {
   name: "conv1a"
   type: "NdConvolution"
-  bottom: "first_person"
+  bottom: "third_person"
   top: "conv1a"
   param {
     lr_mult: 0

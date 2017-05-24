@@ -17,8 +17,7 @@ class LabelParseLayer(caffe.Layer):
 
     def forward(self, bottom, top):
         for i, label in enumerate(bottom[0].data):
-            print label
-            label = str(label)
+            label = str(int(label[0]))
             if self.l_type:
                 my_value = label[:len(label) - 2]
             else:

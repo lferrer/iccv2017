@@ -22,30 +22,32 @@ class LabelSplitLayer(caffe.Layer):
             if raw_label < 1000000:
                 #6 digits label
                 label_str = '{0:06.0f}'.format(raw_label)
-                left_label = raw_label[:3]
-                right_label = raw_label[3:]
+                left_label = label_str[:3]
+                right_label = label_str[3:]
             elif raw_label < 10000000:
                 #7 digits label
                 label_str = '{0:07.0f}'.format(raw_label)
                 if label_str[:2] == '10':
                     # left is longer
-                    left_label = raw_label[:4]
-                    right_label = raw_label[4:]
+                    left_label = label_str[:4]
+                    right_label = label_str[4:]
                 else:
                     # right is longer
-                    left_label = raw_label[:3]
-                    right_label = raw_label[3:]
+                    left_label = label_str[:3]
+                    right_label = label_str[3:]
             else:
                 # 8 digits label
                 label_str = '{0:08.0f}'.format(raw_label)
-                left_label = raw_label[:4]
-                right_label = raw_label[4:]
+                left_label = label_str[:4]
+                right_label = label_str[4:]
             if self.first_person:
                 top[0].data[i] = int(left_label)
                 top[1].data[i] = int(right_label)
             else:
                 top[0].data[i] = int(right_label)
                 top[1].data[i] = int(left_label)
+            self.first_person = not self.first_person
 
     def backward(self, top, propagate_down, bottom):
         pass
+
