@@ -718,21 +718,6 @@ layer {
   }
 }
 
-layer {
-  type: 'Python'
-  name: "mvn"
-  bottom: "fc7"
-  top: "fc7_norm"
-  python_param {
-    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
-    module: 'mvn'
-    # the layer name -- the class name in the module
-    layer: 'MVNLayer'
-    # Put the number of samples here and the filename
-    # param_str : ''
-  }
-}
-
 # ----- 2nd group -----
 layer {
   name: "conv1a_pos"
@@ -1063,21 +1048,6 @@ layer {
   top: "fc7_pos"
   dropout_param {
     dropout_ratio: 0.5
-  }
-}
-
-layer {
-  type: 'Python'
-  name: "mvn_pos"
-  bottom: "fc7_pos"
-  top: "fc7_pos_norm"
-  python_param {
-    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
-    module: 'mvn'
-    # the layer name -- the class name in the module
-    layer: 'MVNLayer'
-    # Put the number of samples here and the filename
-    # param_str : ''
   }
 }
 
@@ -1414,45 +1384,14 @@ layer {
   }
 }
 
-layer {
-  type: 'Python'
-  name: "mvn_neg"
-  bottom: "fc7_neg"
-  top: "fc7_neg_norm"
-  python_param {
-    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
-    module: 'mvn'
-    # the layer name -- the class name in the module
-    layer: 'MVNLayer'
-    # Put the number of samples here and the filename
-    # param_str : ''
-  }
-}
-
 layer{
   name: "loss"
   type: "TripletLoss"
-  bottom: "fc7_norm"
-  bottom: "fc7_pos_norm"
-  bottom: "fc7_neg_norm"
+  bottom: "fc7"
+  bottom: "fc7_pos"
+  bottom: "fc7_neg"
   top: "loss"
   threshold_param {
      threshold: 0.054999542433
-  }
-}
-
-layer {
-  type: 'Python'
-  name: "triplet_check"
-  bottom: "fc7_norm"
-  bottom: "fc7_pos_norm"
-  bottom: "fc7_neg_norm"
-  python_param {
-    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
-    module: 'triplet_check'
-    # the layer name -- the class name in the module
-    layer: 'TripletCheckLayer'
-    # Put the number of samples here and the filename
-    param_str : '{"n_samples":"35000", "filename":"../../features/triplet_loss_triplet_distance_"}'
   }
 }

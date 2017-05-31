@@ -152,7 +152,7 @@ layer {
     mirror: true
   }
   data_param {
-    source: "/data/leo-data/Synthetic/LMDB/Triplets/train"
+    source: "/data/leo-data/Synthetic/LMDB/Triplets/test"
     backend: LMDB
     batch_size: 10
   }
@@ -553,20 +553,20 @@ layer {
   }
 }
 
-layer {
-  type: 'Python'
-  name: "mvn"
-  bottom: "fc7"
-  top: "fc7_norm"
-  python_param {
-    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
-    module: 'mvn'
-    # the layer name -- the class name in the module
-    layer: 'MVNLayer'
-    # Put the number of samples here and the filename
-    # param_str : ''
-  }
-}
+#layer {
+#  type: 'Python'
+#  name: "mvn"
+#  bottom: "fc7"
+#  top: "fc7_norm"
+#  python_param {
+#    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+#    module: 'mvn'
+#    # the layer name -- the class name in the module
+#    layer: 'MVNLayer'
+#    # Put the number of samples here and the filename
+#    # param_str : ''
+#  }
+#}
 
 # ----- 2nd group -----
 layer {
@@ -901,20 +901,20 @@ layer {
   }
 }
 
-layer {
-  type: 'Python'
-  name: "mvn_pos"
-  bottom: "fc7_pos"
-  top: "fc7_pos_norm"
-  python_param {
-    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
-    module: 'mvn'
-    # the layer name -- the class name in the module
-    layer: 'MVNLayer'
-    # Put the number of samples here and the filename
-    # param_str : ''
-  }
-}
+#layer {
+#  type: 'Python'
+#  name: "mvn_pos"
+#  bottom: "fc7_pos"
+#  top: "fc7_pos_norm"
+#  python_param {
+#    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+#    module: 'mvn'
+#    # the layer name -- the class name in the module
+#    layer: 'MVNLayer'
+#    # Put the number of samples here and the filename
+#    # param_str : ''
+#  }
+#}
 
 # ----- 3rd group -----
 layer {
@@ -1249,34 +1249,34 @@ layer {
   }
 }
 
-layer {
-  type: 'Python'
-  name: "mvn_neg"
-  bottom: "fc7_neg"
-  top: "fc7_neg_norm"
-  python_param {
-    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
-    module: 'mvn'
-    # the layer name -- the class name in the module
-    layer: 'MVNLayer'
-    # Put the number of samples here and the filename
-    # param_str : ''
-  }
-}
+#layer {
+#  type: 'Python'
+#  name: "mvn_neg"
+#  bottom: "fc7_neg"
+#  top: "fc7_neg_norm"
+#  python_param {
+#    # the module name -- usually the filename -- that needs to be in $PYTHONPATH
+#    module: 'mvn'
+#    # the layer name -- the class name in the module
+#    layer: 'MVNLayer'
+#    # Put the number of samples here and the filename
+#    # param_str : ''
+#  }
+#}
 
 layer {
   type: 'Python'
   name: "save"
-  bottom: "fc7_norm"
-  bottom: "fc7_pos_norm"
-  bottom: "fc7_neg_norm"
+  bottom: "fc7"
+  bottom: "fc7_pos"
+  bottom: "fc7_neg"
   python_param {
     # the module name -- usually the filename -- that needs to be in $PYTHONPATH
     module: 'save_features'
     # the layer name -- the class name in the module
     layer: 'SaveFeaturesLayer'
     # Put the number of samples here
-    param_str : '{"n_samples":"35000", "filename":"../../features/features_baseline_train.npz"}'
+    param_str : '{"n_samples":"10000", "filename":"../../features/features_triplet_loss_previous_test.npz"}'
   }
 }
 

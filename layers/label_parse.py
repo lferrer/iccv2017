@@ -22,6 +22,8 @@ class LabelParseLayer(caffe.Layer):
                 my_value = label[:len(label) - 2]
             else:
                 my_value = label[-2:]
+            if len(my_value) == 0:
+                my_value = '11'
             top[0].data[i] = int(my_value)
 
     def backward(self, top, propagate_down, bottom):
