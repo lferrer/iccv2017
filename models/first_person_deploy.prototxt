@@ -3,6 +3,7 @@ layer {
   name: "data"
   type: "Data"
   top: "triplet"
+  top: "raw_label"
   transform_param {
     crop_size: 112
     mean_value: 65
