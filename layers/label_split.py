@@ -8,9 +8,6 @@ class LabelSplitLayer(caffe.Layer):
         # check output pair
         if len(top) != 2:
             raise Exception("Need two output labels.")
-        # Specifying type of input data
-        self.first_person = True
-
 
     def reshape(self, bottom, top):
         # check input dimensions match
@@ -39,14 +36,9 @@ class LabelSplitLayer(caffe.Layer):
                 # 8 digits label
                 label_str = '{0:08.0f}'.format(raw_label)
                 left_label = label_str[:4]
-                right_label = label_str[4:]
-            if self.first_person:
-                top[0].data[i] = int(left_label)
-                top[1].data[i] = int(right_label)
-            else:
-                top[0].data[i] = int(right_label)
-                top[1].data[i] = int(left_label)
-            self.first_person = not self.first_person
+                right_label = label_str[4:]            
+            top[0].data[i] = int(left_label)
+            top[1].data[i] = int(right_label)            
 
     def backward(self, top, propagate_down, bottom):
         pass
