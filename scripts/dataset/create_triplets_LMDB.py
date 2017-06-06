@@ -330,7 +330,7 @@ def generate_database(db_name, n_samples, index_start):
                 positive_label = compute_image_label(positive_filename)
                 negative_label = compute_image_label(negative_filename)
                 # Anchor's and Positive's labels are the same
-                triplet_label = "{}{}{}".format(anchor_label, positive_label, negative_label)
+                triplet_label = "{}{}".format(anchor_label, negative_label)
 
                 # Add to the lmdb
                 db_index = int(index_list[index + index_start + i])
@@ -338,7 +338,7 @@ def generate_database(db_name, n_samples, index_start):
 
                 # Add the triplet to the log file
                 log_file.write(img_triplet + ',')
-                log_file.write("{},{},{}\n".format(anchor_label, positive_label, negative_label))
+                log_file.write("{},{}\n".format(anchor_label, negative_label))
 
                 # Invert the anchor to generate another type of sample
                 fp_anchor = not fp_anchor

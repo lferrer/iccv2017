@@ -8,24 +8,21 @@ def parse_log(log_lines, n_iterations, accuracy_rate):
     n_points = n_iterations / accuracy_rate + 1
     top1_accuracy = np.empty((2, n_points))
     top1_accuracy[0] = range(0, n_iterations + accuracy_rate, accuracy_rate)
+    top1_count = 0
     top5_accuracy = np.empty((2, n_points))
     top5_accuracy[0] = range(0, n_iterations + accuracy_rate, accuracy_rate)
+    top5_count = 0
     for line in log_lines:
-        iter_index = line.find('Iteration ')
-        if iter_index > 0:
-            sub_line = line[iter_index + 10:]
-            comma_index = sub_line.find(',')
-            iteration = int(sub_line[:comma_index])
-        elif line.find('Test net output #0: accuracy/top-1') > 0:
+        if line.find('accuracy/top-1 =') > 0:
             sign_index = line.find('=')
             accuracy = float(line[sign_index + 2:])
-            accuracy_index = iteration / accuracy_rate
-            top1_accuracy[1][accuracy_index] = accuracy
-        elif line.find('Test net output #1: accuracy/top-5') > 0:
+            top1_accuracy[1][top1_count] = accuracy
+            top1_count += 1
+        elif line.find('accuracy/top-5 =') > 0:
             sign_index = line.find('=')
             accuracy = float(line[sign_index + 2:])
-            accuracy_index = iteration / accuracy_rate
-            top5_accuracy[1][accuracy_index] = accuracy
+            top5_accuracy[1][top5_count] = accuracy
+            top5_count += 1
     return top1_accuracy, top5_accuracy
 
 def plot_train_test(training_loss, validation_loss, output_file, title):
