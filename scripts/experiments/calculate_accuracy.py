@@ -1,8 +1,5 @@
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-
 
 def parse_log(log_lines):
     top1_accuracy = 0
